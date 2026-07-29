@@ -1,0 +1,40 @@
+# Supabase CLI config. `project_id` is the local stack's name, not the cloud
+# project ref — link the cloud project with:
+#
+#   pnpm supabase link --project-ref <ref>
+#   pnpm supabase db push
+project_id = "mtu-e-voting"
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 17
+
+[db.migrations]
+schema_paths = []
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "storage"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[storage]
+enabled = true
+file_size_limit = "5MiB"
+
+[auth]
+enabled = true
+site_url = "http://127.0.0.1:3000"
+additional_redirect_urls = ["https://127.0.0.1:3000"]
+jwt_expiry = 3600
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+# FR-2 / FR-3: confirmation is the gate on reaching verification. Production
+# must also point Supabase at custom SMTP — the built-in mailer is rate-limited
+# and would not survive ~1,000 signups (ARCHITECTURE §3).
+enable_confirmations = true
+double_confirm_changes = true

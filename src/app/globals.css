@@ -1,26 +1,124 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/*
+ * IBM Carbon, as specified in DESIGN.md.
+ *
+ * Three rules carry the look and are easy to erode:
+ *   1. Corners stay at 0. No `rounded-*` on buttons, cards, inputs or tiles.
+ *   2. Display sizes (42px+) run at weight 300. Bolding them makes it generic.
+ *   3. Blue is scarce — primary CTA, links, focus ring, CTA banner. It is never
+ *      a card background or an eyebrow colour.
+ *
+ * No dark mode: Carbon's marketing surface commits to a white canvas and
+ * inverts only at the footer.
+ */
+
+@theme {
+  --font-sans: var(--font-plex-sans), "Helvetica Neue", Arial, sans-serif;
+
+  /* Surface */
+  --color-canvas: #ffffff;
+  --color-surface-1: #f4f4f4;
+  --color-surface-2: #e0e0e0;
+  --color-hairline: #e0e0e0;
+  --color-hairline-strong: #161616;
+  --color-inverse-canvas: #161616;
+  --color-inverse-surface-1: #262626;
+
+  /* Text */
+  --color-ink: #161616;
+  --color-ink-muted: #525252;
+  --color-ink-subtle: #8c8c8c;
+  --color-inverse-ink: #ffffff;
+  --color-inverse-ink-muted: #c6c6c6;
+
+  /* The single accent */
+  --color-primary: #0f62fe;
+  --color-primary-hover: #0050e6;
+  --color-primary-active: #002d9c;
+  --color-link-hover: #0043ce;
+  --color-on-primary: #ffffff;
+
+  /* Semantic — status only, never decoration */
+  --color-success: #24a148;
+  --color-success-bg: #defbe6;
+  --color-success-ink: #0e6027;
+  --color-warning: #f1c21b;
+  --color-warning-bg: #fcf4d6;
+  --color-warning-ink: #684e00;
+  --color-error: #da1e28;
+  --color-error-bg: #fff1f1;
+  --color-error-ink: #a2191f;
+
+  /* Type scale. Display runs at 300 — that is the brand voice. */
+  --text-display-xl: 76px;
+  --text-display-xl--line-height: 1.17;
+  --text-display-xl--letter-spacing: -0.5px;
+  --text-display-xl--font-weight: 300;
+
+  --text-display-lg: 60px;
+  --text-display-lg--line-height: 1.17;
+  --text-display-lg--letter-spacing: -0.4px;
+  --text-display-lg--font-weight: 300;
+
+  --text-display-md: 42px;
+  --text-display-md--line-height: 1.2;
+  --text-display-md--font-weight: 300;
+
+  --text-headline: 32px;
+  --text-headline--line-height: 1.25;
+  --text-headline--font-weight: 400;
+
+  --text-card-title: 24px;
+  --text-card-title--line-height: 1.33;
+  --text-card-title--font-weight: 400;
+
+  --text-subhead: 20px;
+  --text-subhead--line-height: 1.4;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.5;
+
+  --text-body: 16px;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: 0.16px;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.29;
+  --text-body-sm--letter-spacing: 0.16px;
+
+  --text-caption: 12px;
+  --text-caption--line-height: 1.33;
+  --text-caption--letter-spacing: 0.32px;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+@layer base {
+  html {
+    background: var(--color-canvas);
+    color: var(--color-ink);
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: 1.5;
+    letter-spacing: 0.16px;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a {
+    color: var(--color-primary);
+    text-decoration: none;
+  }
+
+  a:hover {
+    color: var(--color-link-hover);
+    text-decoration: underline;
+  }
+
+  /* Carbon's focus treatment: a 2px blue ring, square. */
+  :focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 0;
+  }
 }
