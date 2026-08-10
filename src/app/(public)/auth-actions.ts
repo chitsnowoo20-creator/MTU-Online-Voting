@@ -4,7 +4,12 @@ import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { loginSchema, registerSchema } from "@/lib/validation/auth";
+import {
+  forgotPasswordSchema,
+  loginSchema,
+  registerSchema,
+  resetPasswordSchema,
+} from "@/lib/validation/auth";
 import { createClient } from "@/lib/supabase/server";
 
 export type FormState = {
@@ -119,4 +124,67 @@ export async function logout() {
   await supabase.auth.signOut();
   revalidatePath("/", "layout");
   redirect("/");
+}
+
+export async function requestPasswordReset(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const parsed = forgotPasswordSchema.safeParse({
+    email: formData.get("email"),
+  });
+
+  if (!parsed.success) {
+    return { fieldErrors: fieldErrorsOf(parsed.error.issues) };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.resetPasswordForEmail(
+    parsed.data.email,
+    {
+      redirectTo: `${await origin()}/auth/confirm?next=/reset-password`,
+    },
+  );
+
+  if (error) return { error: error.message };
+
+  /*
+   * Same anti-enumeration posture as registration: always show success so the
+   * response cannot be used to discover registered addresses.
+   */
+  return { sent: true };
+}
+
+export async function updatePassword(
+  _prev: FormState,
+  formData: FormData,
+): Promise<FormState> {
+  const parsed = resetPasswordSchema.safeParse({
+    password: formData.get("password"),
+    confirmPassword: formData.get("confirmPassword"),
+  });
+
+  if (!parsed.success) {
+    return { fieldErrors: fieldErrorsOf(parsed.error.issues) };
+  }
+
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    return {
+      error: "This reset link has expired or already been used. Request a new one.",
+    };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+  });
+
+  if (error) return { error: error.message };
+
+  revalidatePath("/", "layout");
+  redirect("/account");
 }

@@ -18,11 +18,11 @@ export function AuthShell({
   footer?: ReactNode;
 }) {
   return (
-    <main className="flex flex-1 items-center justify-center bg-surface-1 px-4 py-16">
-      <div className="w-full max-w-[480px] border border-hairline bg-canvas p-8">
+    <main className="surface-page flex flex-1 items-center justify-center px-4 py-12 sm:py-16">
+      <div className="surface-panel w-full max-w-[480px] p-6 sm:p-8">
         <Link
           href="/"
-          className="text-body-sm text-ink-muted no-underline hover:text-ink hover:no-underline"
+          className="eyebrow-label no-underline hover:text-ink hover:no-underline"
         >
           Campus Elections
         </Link>

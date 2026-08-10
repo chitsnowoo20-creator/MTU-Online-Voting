@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { setRole } from "./actions";
+import { DataTable } from "@/components/ui/data-table";
 import { FormError } from "@/components/ui/tile";
 import type { Database } from "@/lib/db/database.types";
 
@@ -45,54 +46,98 @@ export function RolesTable({ users }: { users: DirectoryRow[] }) {
     <div className="flex flex-col gap-4">
       {error ? <FormError>{error}</FormError> : null}
 
-      <div className="border border-hairline bg-canvas">
+      <div className="surface-panel">
         {users.length === 0 ? (
           <p className="px-6 py-12 text-center text-body text-ink-muted">
             No users match that search.
           </p>
         ) : (
-          <table className="w-full border-collapse text-body-sm">
-            <thead>
-              <tr className="border-b border-hairline text-left text-caption text-ink-muted">
-                <th className="px-6 py-3 font-normal">User</th>
-                {ROLES.map(({ role, label }) => (
-                  <th key={role} className="px-4 py-3 text-center font-normal">
-                    {label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            <ul className="flex flex-col divide-y divide-hairline md:hidden">
               {users.map((user) => (
-                <tr
-                  key={user.profile_id}
-                  className="border-b border-hairline last:border-b-0"
-                >
-                  <td className="px-6 py-4">
-                    <p className="text-ink">{user.full_name}</p>
-                    <p className="text-caption text-ink-muted">{user.email}</p>
-                  </td>
-                  {ROLES.map(({ role, label }) => {
-                    const has = user.roles.includes(role);
-                    return (
-                      <td key={role} className="px-4 py-4 text-center">
-                        <input
-                          type="checkbox"
-                          checked={has}
-                          disabled={pending}
-                          aria-label={`${label} — ${user.full_name}`}
-                          onChange={(event) =>
-                            toggle(user.profile_id, role, event.target.checked)
-                          }
-                          className="size-4 cursor-pointer accent-[var(--color-primary)] disabled:cursor-wait"
-                        />
-                      </td>
-                    );
-                  })}
-                </tr>
+                <li key={user.profile_id} className="px-6 py-4">
+                  <p className="text-ink">{user.full_name}</p>
+                  <p className="text-caption text-ink-muted">{user.email}</p>
+                  <div className="mt-3 flex flex-col gap-2">
+                    {ROLES.map(({ role, label }) => {
+                      const has = user.roles.includes(role);
+                      return (
+                        <label
+                          key={role}
+                          className="flex items-center gap-2 text-body-sm"
+                        >
+                          <input
+                            type="checkbox"
+                            checked={has}
+                            disabled={pending}
+                            aria-label={`${label} — ${user.full_name}`}
+                            onChange={(event) =>
+                              toggle(user.profile_id, role, event.target.checked)
+                            }
+                            className="size-4 cursor-pointer accent-[var(--color-primary)] disabled:cursor-wait"
+                          />
+                          {label}
+                        </label>
+                      );
+                    })}
+                  </div>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+
+            <div className="hidden md:block">
+              <DataTable minWidth={640}>
+                <table className="w-full border-collapse text-body-sm">
+                  <thead>
+                    <tr className="border-b border-hairline text-left text-caption text-ink-muted">
+                      <th className="px-6 py-3 font-normal">User</th>
+                      {ROLES.map(({ role, label }) => (
+                        <th key={role} className="px-4 py-3 text-center font-normal">
+                          {label}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {users.map((user) => (
+                      <tr
+                        key={user.profile_id}
+                        className="border-b border-hairline last:border-b-0"
+                      >
+                        <td className="px-6 py-4">
+                          <p className="text-ink">{user.full_name}</p>
+                          <p className="text-caption text-ink-muted">
+                            {user.email}
+                          </p>
+                        </td>
+                        {ROLES.map(({ role, label }) => {
+                          const has = user.roles.includes(role);
+                          return (
+                            <td key={role} className="px-4 py-4 text-center">
+                              <input
+                                type="checkbox"
+                                checked={has}
+                                disabled={pending}
+                                aria-label={`${label} — ${user.full_name}`}
+                                onChange={(event) =>
+                                  toggle(
+                                    user.profile_id,
+                                    role,
+                                    event.target.checked,
+                                  )
+                                }
+                                className="size-4 cursor-pointer accent-[var(--color-primary)] disabled:cursor-wait"
+                              />
+                            </td>
+                          );
+                        })}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </DataTable>
+            </div>
+          </>
         )}
       </div>
 

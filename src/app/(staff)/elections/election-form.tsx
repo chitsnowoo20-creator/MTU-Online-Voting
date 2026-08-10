@@ -99,7 +99,7 @@ export function ElectionForm({
   return (
     <form
       action={formAction}
-      className="flex flex-col gap-6 border border-hairline bg-canvas p-6"
+      className="surface-panel flex flex-col gap-6 p-6"
     >
       {election ? <input type="hidden" name="id" value={election.id} /> : null}
       {state.error ? <FormError>{state.error}</FormError> : null}

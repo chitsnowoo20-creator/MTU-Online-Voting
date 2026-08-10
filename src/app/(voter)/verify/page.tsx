@@ -21,7 +21,7 @@ function Panel({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border border-hairline bg-canvas">
+    <div className="surface-panel">
       <div className="flex items-center justify-between gap-4 border-b border-hairline px-6 py-4">
         <h1 className="text-card-title">{title}</h1>
         {status}

@@ -38,7 +38,7 @@ export function TieForm({
 
   if (state.saved === group.categoryId) {
     return (
-      <div className="border border-hairline bg-canvas px-6 py-5">
+      <div className="surface-card px-6 py-5">
         <h2 className="text-card-title">{group.categoryName}</h2>
         <p className="mt-1 text-body-sm text-ink-muted">
           Resolution recorded. This category no longer blocks publication.
@@ -48,7 +48,7 @@ export function TieForm({
   }
 
   return (
-    <form action={formAction} className="border border-hairline bg-canvas">
+    <form action={formAction} className="surface-card">
       <input type="hidden" name="electionId" value={electionId} />
       <input type="hidden" name="categoryId" value={group.categoryId} />
 

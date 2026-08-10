@@ -34,7 +34,7 @@ export default async function AdminPage() {
     <StaffPage title="Admin" subtitle="Roles, departments and the audit trail">
       <ul className="grid gap-px bg-hairline sm:grid-cols-3">
         {SECTIONS.map((section) => (
-          <li key={section.href} className="bg-canvas">
+          <li key={section.href} className="surface-card">
             <Link
               href={section.href}
               className="flex h-full flex-col gap-2 p-6 no-underline hover:bg-surface-1 hover:no-underline"

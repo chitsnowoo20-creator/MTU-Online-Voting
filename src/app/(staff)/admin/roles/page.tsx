@@ -63,7 +63,7 @@ export default async function RolesPage({
       </form>
 
       {error ? (
-        <div className="border border-hairline bg-canvas px-6 py-8 text-body-sm text-error-ink">
+        <div className="surface-card px-6 py-8 text-body-sm text-error-ink">
           {error.message}
         </div>
       ) : (

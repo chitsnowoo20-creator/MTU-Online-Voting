@@ -148,7 +148,7 @@ export function CategoryEditor({
   return (
     <div className="flex flex-col gap-6">
       {categories.map((category) => (
-        <div key={category.id} className="border border-hairline bg-canvas">
+        <div key={category.id} className="surface-card">
           <div className="flex items-center justify-between gap-4 border-b border-hairline px-6 py-4">
             <h2 className="text-card-title">{category.name}</h2>
             <form action={removeAction}>
@@ -170,7 +170,7 @@ export function CategoryEditor({
 
       {removeState.error ? <FormError>{removeState.error}</FormError> : null}
 
-      <div className="border border-hairline bg-canvas px-6 py-6">
+      <div className="surface-card px-6 py-6">
         {addState.error ? <FormError>{addState.error}</FormError> : null}
         <form action={addAction} className="flex flex-wrap items-end gap-3">
           <input type="hidden" name="electionId" value={electionId} />

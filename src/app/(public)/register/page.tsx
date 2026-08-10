@@ -17,7 +17,7 @@ export default async function RegisterPage() {
       intro="Any email address works. You'll confirm it next."
       footer={
         <>
-          Already registered? <Link href="/login">Sign in</Link>
+          Already registered? <Link className="auth-link" href="/login">Sign in</Link>
         </>
       }
     >

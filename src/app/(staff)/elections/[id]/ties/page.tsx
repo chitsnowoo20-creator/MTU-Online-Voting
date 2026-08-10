@@ -56,11 +56,11 @@ export default async function TiesPage({
       width="640px"
     >
       {error ? (
-        <div className="border border-hairline bg-canvas px-6 py-8 text-body-sm text-error-ink">
+        <div className="surface-card px-6 py-8 text-body-sm text-error-ink">
           {error.message}
         </div>
       ) : groups.size === 0 ? (
-        <div className="border border-hairline bg-canvas px-6 py-12 text-center">
+        <div className="surface-card px-6 py-12 text-center">
           <p className="text-body text-ink-muted">
             No unresolved ties. This election can be published.
           </p>

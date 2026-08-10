@@ -7,7 +7,6 @@ import { formatCountdown, votingPhase } from "@/lib/election/schedule";
 
 type ElectionState = Database["public"]["Enums"]["election_state"];
 
-/** How each lifecycle state reads to an officer, and which tone it wears. */
 export const STATE_LABEL: Record<ElectionState, string> = {
   DRAFT: "Draft",
   CANDIDATES_LOCKED: "Candidates locked",
@@ -16,10 +15,7 @@ export const STATE_LABEL: Record<ElectionState, string> = {
   PUBLISHED: "Published",
 };
 
-const STATE_TONE: Record<
-  ElectionState,
-  "done" | "pending" | "locked" | "info"
-> = {
+const STATE_TONE: Record<ElectionState, "done" | "pending" | "locked" | "info"> = {
   DRAFT: "locked",
   CANDIDATES_LOCKED: "info",
   OPEN: "pending",
@@ -38,26 +34,19 @@ export function StateTag({
 }) {
   const phase = votingPhase(state, opensAt, closesAt);
 
-  if (phase === "SCHEDULED") {
-    return <Tag tone="info">Opens {formatCountdown(opensAt)}</Tag>;
-  }
-  if (phase === "LIVE") {
-    return <Tag tone="pending">Voting live</Tag>;
-  }
-  if (phase === "AWAITING_CLOSE") {
-    return <Tag tone="info">Closing</Tag>;
-  }
+  if (phase === "SCHEDULED") return <Tag tone="info">Opens {formatCountdown(opensAt)}</Tag>;
+  if (phase === "LIVE") return <Tag tone="pending">Voting live</Tag>;
+  if (phase === "AWAITING_CLOSE") return <Tag tone="info">Closing</Tag>;
   return <Tag tone={STATE_TONE[state]}>{STATE_LABEL[state]}</Tag>;
 }
 
-/** Shared chrome for every staff screen: back link, title row, actions. */
 export function StaffPage({
   title,
   subtitle,
   back,
   actions,
   children,
-  width = "880px",
+  width = "960px",
 }: {
   title: string;
   subtitle?: ReactNode;
@@ -67,19 +56,21 @@ export function StaffPage({
   width?: string;
 }) {
   return (
-    <main className="flex-1 bg-surface-1 px-4 py-16">
+    <main className="surface-page flex-1 px-4 py-10 sm:py-14">
       <div className="mx-auto w-full" style={{ maxWidth: width }}>
         {back ? (
-          <p className="mb-4 text-body-sm">
-            <Link href={back.href}>← {back.label}</Link>
+          <p className="mb-4 text-body-sm font-medium">
+            <Link href={back.href} className="inline-flex items-center gap-1 text-ink-muted hover:text-brand-ink">
+              ← {back.label}
+            </Link>
           </p>
         ) : null}
 
-        <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div className="mb-8 flex flex-wrap items-start justify-between gap-4 rounded-[24px] border border-primary/10 bg-[image:var(--gradient-mesh)] bg-inverse-canvas px-7 py-6 shadow-card">
           <div>
-            <h1 className="text-headline">{title}</h1>
+            <h1 className="text-headline text-inverse-ink">{title}</h1>
             {subtitle ? (
-              <div className="mt-1 text-body-sm text-ink-muted">{subtitle}</div>
+              <div className="mt-1.5 text-body-sm text-inverse-ink-muted">{subtitle}</div>
             ) : null}
           </div>
           {actions ? <div className="flex gap-3">{actions}</div> : null}
@@ -90,4 +81,3 @@ export function StaffPage({
     </main>
   );
 }
-

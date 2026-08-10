@@ -84,7 +84,7 @@ function Row({ department }: { department: Department }) {
           <button
             type="button"
             onClick={() => setEditing(true)}
-            className="cursor-pointer text-caption text-primary"
+            className="cursor-pointer text-caption text-brand-ink"
           >
             Edit
           </button>
@@ -120,7 +120,7 @@ export function DepartmentEditor({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="border border-hairline bg-canvas">
+      <div className="surface-panel">
         <div className="border-b border-hairline px-6 py-4">
           <h2 className="text-card-title">Departments</h2>
           <p className="text-body-sm text-ink-muted">
@@ -134,7 +134,7 @@ export function DepartmentEditor({
         </ul>
       </div>
 
-      <div className="border border-hairline bg-canvas px-6 py-6">
+      <div className="surface-card px-6 py-6">
         {addState.error ? <FormError>{addState.error}</FormError> : null}
         <form action={addAction} className="mt-3 flex flex-wrap items-end gap-3">
           <div className="w-32">

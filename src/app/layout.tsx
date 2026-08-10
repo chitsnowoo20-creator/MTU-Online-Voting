@@ -1,18 +1,6 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans } from "next/font/google";
 
 import "./globals.css";
-
-/*
- * Plex Sans carries the whole hierarchy — there is no display/body pairing.
- * 300 is the display weight, 400 body, 600 emphasis. Nothing else is needed.
- */
-const plexSans = IBM_Plex_Sans({
-  variable: "--font-plex-sans",
-  subsets: ["latin"],
-  weight: ["300", "400", "600"],
-  display: "swap",
-});
 
 export const metadata: Metadata = {
   title: "Campus Elections",
@@ -26,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${plexSans.variable} h-full`}>
+    <html lang="en" className="h-full">
       <body className="flex min-h-full flex-col bg-canvas text-ink antialiased">
         {children}
       </body>

@@ -28,11 +28,11 @@ const RAIL_COOKIE = "nav_rail";
 /** Rail row: 48px tall, 2px left rule that only the active row colours in. */
 function railRowClass(active: boolean, expanded: boolean): string {
   return [
-    "flex h-12 items-center border-l-2 no-underline transition-colors",
+    "flex h-11 items-center border-l-2 no-underline transition-all duration-200",
     "hover:bg-surface-2 hover:no-underline",
-    expanded ? "gap-4 pl-[14px] pr-4" : "justify-center px-0",
+    expanded ? "mx-2 gap-3 rounded-lg pl-3 pr-4" : "mx-1 justify-center rounded-lg px-0",
     active
-      ? "border-primary bg-surface-2 text-ink"
+      ? "border-primary bg-primary/10 text-brand-ink shadow-[inset_3px_0_0_0_var(--color-primary)]"
       : "border-transparent text-ink-muted hover:text-ink",
   ].join(" ");
 }
@@ -134,14 +134,14 @@ export function AppNav({
 
   return (
     <div className="flex min-h-full flex-1 flex-col">
-      <header className="sticky top-0 z-30 flex h-12 shrink-0 items-center justify-between border-b border-hairline bg-canvas">
+      <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-hairline bg-canvas/95 shadow-[0_1px_0_rgb(20_32_51/0.02)] backdrop-blur supports-[backdrop-filter]:bg-canvas/80">
         <div className="flex h-full min-w-0 items-center">
           <button
             type="button"
             onClick={toggleRail}
             aria-expanded={expanded}
             aria-label={expanded ? "Collapse navigation" : "Expand navigation"}
-            className="hidden h-12 w-12 cursor-pointer items-center justify-center border-r border-hairline text-ink hover:bg-surface-1 lg:flex"
+            className="hidden h-14 w-14 cursor-pointer items-center justify-center border-r border-hairline text-ink hover:bg-surface-1 lg:flex"
           >
             <NavIcon name="menu" />
           </button>
@@ -152,14 +152,14 @@ export function AppNav({
             aria-expanded={menuOpen}
             aria-controls="app-nav-menu"
             aria-label={menuOpen ? "Close menu" : "Open menu"}
-            className="flex h-12 w-12 cursor-pointer items-center justify-center border-r border-hairline text-ink hover:bg-surface-1 lg:hidden"
+            className="flex h-14 w-14 cursor-pointer items-center justify-center border-r border-hairline text-ink hover:bg-surface-1 lg:hidden"
           >
             <NavIcon name={menuOpen ? "close" : "menu"} />
           </button>
 
           <Link
             href="/"
-            className="px-4 text-body-sm font-semibold text-ink no-underline hover:no-underline"
+            className="px-4 text-body-sm font-semibold tracking-tight text-ink no-underline hover:no-underline"
           >
             Campus Elections
           </Link>
@@ -174,7 +174,7 @@ export function AppNav({
           </span>
           <span
             aria-hidden="true"
-            className="flex h-8 w-8 items-center justify-center bg-surface-1 text-caption text-ink"
+            className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-caption font-semibold text-brand-ink"
           >
             {identity.initials}
           </span>
@@ -189,13 +189,13 @@ export function AppNav({
           type="button"
           aria-label="Close menu"
           onClick={() => setMenuPath(null)}
-          className="fixed inset-x-0 top-12 bottom-0 z-10 cursor-default bg-ink/20 lg:hidden"
+          className="fixed inset-x-0 top-14 bottom-0 z-10 cursor-default bg-ink/20 lg:hidden"
         />
       ) : null}
       {menuOpen ? (
         <div
           id="app-nav-menu"
-          className="fixed inset-x-0 top-12 z-20 max-h-[calc(100vh-3rem)] overflow-y-auto border-b border-hairline bg-canvas lg:hidden"
+          className="fixed inset-x-0 top-14 z-20 max-h-[calc(100vh-3.5rem)] overflow-y-auto border-b border-hairline bg-canvas shadow-card lg:hidden"
         >
           <nav aria-label={`${section.name} navigation`}>
             <ul className="flex flex-col">
@@ -244,7 +244,7 @@ export function AppNav({
       <div className="flex flex-1">
         <nav
           aria-label={`${section.name} navigation`}
-          className={`sticky top-12 hidden h-[calc(100vh-3rem)] shrink-0 flex-col border-r border-hairline bg-surface-1 transition-[width] duration-100 lg:flex ${
+          className={`sticky top-14 hidden h-[calc(100vh-3.5rem)] shrink-0 flex-col border-r border-hairline bg-canvas transition-[width] duration-200 lg:flex ${
             expanded ? "w-64" : "w-12"
           }`}
         >
@@ -316,7 +316,7 @@ export function AppNav({
 
       <nav
         aria-label={`${section.name} navigation`}
-        className="fixed inset-x-4 bottom-4 z-30 flex bg-inverse-canvas lg:hidden"
+        className="fixed inset-x-4 bottom-4 z-30 flex overflow-hidden rounded-2xl border border-white/10 bg-inverse-canvas shadow-[0_14px_35px_rgb(17_32_51/0.32)] lg:hidden"
       >
         {barItems.map((item) => {
           const active = item.href === current;
@@ -325,7 +325,7 @@ export function AppNav({
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex h-16 flex-1 flex-col items-center justify-center gap-1 border-t-2 no-underline hover:no-underline ${
+              className={`flex h-16 flex-1 flex-col items-center justify-center gap-1 border-t-2 no-underline transition-colors hover:no-underline ${
                 active
                   ? "border-primary bg-inverse-surface-1 text-inverse-ink"
                   : "border-transparent text-inverse-ink-muted"

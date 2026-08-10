@@ -35,5 +35,24 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Enter your password."),
 });
 
+export const forgotPasswordSchema = z.object({
+  email: z.string().trim().toLowerCase().email("Enter a valid email address."),
+});
+
+export const resetPasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(PASSWORD_MIN, `Use at least ${PASSWORD_MIN} characters.`)
+      .max(72, "Passwords are limited to 72 characters."),
+    confirmPassword: z.string().min(1, "Confirm your password."),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match.",
+    path: ["confirmPassword"],
+  });
+
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;

@@ -11,6 +11,41 @@ export type DecisionState = {
   fieldErrors?: Record<string, string>;
 };
 
+export type IdCardUrlState = {
+  error?: string;
+  signedUrl?: string;
+};
+
+/** Mint a fresh signed URL for the pending submission's ID card image. */
+export async function refreshIdCardUrl(
+  _prev: IdCardUrlState,
+  formData: FormData,
+): Promise<IdCardUrlState> {
+  const submissionId = String(formData.get("submissionId") ?? "");
+  if (!submissionId) return { error: "Missing submission." };
+
+  const supabase = await createClient();
+  const { data: submission } = await supabase
+    .from("verification_queue")
+    .select("id_card_path")
+    .eq("submission_id", submissionId)
+    .maybeSingle();
+
+  if (!submission?.id_card_path) {
+    return { error: "The image is no longer available." };
+  }
+
+  const { data: signed, error } = await supabase.storage
+    .from("id-cards")
+    .createSignedUrl(submission.id_card_path, 300);
+
+  if (error || !signed?.signedUrl) {
+    return { error: error?.message ?? "Could not load the image." };
+  }
+
+  return { signedUrl: signed.signedUrl };
+}
+
 export async function decideReview(
   _prev: DecisionState,
   formData: FormData,

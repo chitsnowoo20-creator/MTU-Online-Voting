@@ -88,7 +88,7 @@ export default async function AccountPage() {
   return (
     <main className="flex flex-1 justify-center bg-surface-1 px-4 py-16">
       <div className="w-full max-w-[640px]">
-        <div className="border border-hairline bg-canvas">
+        <div className="surface-panel">
           <div className="flex items-baseline justify-between border-b border-hairline px-6 py-4">
             <h1 className="text-card-title">Your status</h1>
             <span className="text-body-sm text-ink-muted">{user.email}</span>

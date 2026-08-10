@@ -44,7 +44,38 @@ const NEXT: Partial<Record<ElectionState, { to: ElectionState; cta: string }>> =
     CLOSED: { to: "PUBLISHED", cta: "Publish results" },
   };
 
-function Submit({ label, danger }: { label: string; danger?: boolean }) {
+const CONFIRM: Partial<
+  Record<ElectionState, { title: string; body: string; submit: string }>
+> = {
+  CANDIDATES_LOCKED: {
+    title: "Lock candidates?",
+    body: "The ballot will be frozen. You won't be able to edit categories, awards or candidates afterwards.",
+    submit: "Lock candidates",
+  },
+  OPEN: {
+    title: "Open voting?",
+    body: "Verified voters can begin casting ballots once the opening time arrives. Make sure the schedule is correct first.",
+    submit: "Open voting",
+  },
+  CLOSED: {
+    title: "Close voting?",
+    body: "No further votes will be accepted. You'll need to resolve any ties before results can be published.",
+    submit: "Close voting",
+  },
+  PUBLISHED: {
+    title: "Publish results?",
+    body: "Results become public immediately and this cannot be undone.",
+    submit: "Publish",
+  },
+};
+
+function Submit({
+  label,
+  danger,
+}: {
+  label: string;
+  danger?: boolean;
+}) {
   const { pending } = useFormStatus();
   return (
     <Button
@@ -66,24 +97,28 @@ export function Lifecycle({
   electionId: string;
   state: ElectionState;
   hasUnresolvedTie: boolean;
-  /**
-   * What the OPEN step actually means right now — computed on the server so
-   * the wording can't disagree with the clock cast_vote() checks against.
-   */
   openNote: string;
 }) {
   const [result, formAction] = useActionState<TransitionState, FormData>(
     transitionElection,
     {},
   );
-  const [confirming, setConfirming] = useState(false);
+  const [confirming, setConfirming] = useState<ElectionState | null>(null);
 
   const currentIndex = STEPS.findIndex((step) => step.state === state);
   const next = NEXT[state];
   const publishBlocked = next?.to === "PUBLISHED" && hasUnresolvedTie;
+  /*
+   * Server Actions refresh the election state without remounting this client
+   * component. A previous confirmation target must therefore be ignored as
+   * soon as the election advances; otherwise DRAFT → CANDIDATES_LOCKED leaves
+   * a stale CANDIDATES_LOCKED target ready to submit again.
+   */
+  const confirmedTarget = confirming === next?.to ? confirming : null;
+  const confirmCopy = confirmedTarget ? CONFIRM[confirmedTarget] : null;
 
   return (
-    <div className="border border-hairline bg-canvas">
+    <div className="surface-panel">
       <div className="border-b border-hairline px-6 py-4">
         <h2 className="text-card-title">Lifecycle</h2>
         <p className="text-body-sm text-ink-muted">
@@ -150,44 +185,43 @@ export function Lifecycle({
           <p className="text-body-sm text-ink-muted">
             This election is published. Nothing further to do.
           </p>
-        ) : next.to === "PUBLISHED" && confirming ? (
+        ) : confirmedTarget && confirmCopy ? (
           <form action={formAction} className="flex flex-col gap-3">
             <input type="hidden" name="id" value={electionId} />
-            <input type="hidden" name="to" value="PUBLISHED" />
-            <p className="text-body text-ink">Publish results?</p>
-            <p className="text-body-sm text-ink-muted">
-              Results become public immediately and this cannot be undone.
-            </p>
+            <input type="hidden" name="to" value={confirmedTarget} />
+            <p className="text-body text-ink">{confirmCopy.title}</p>
+            <p className="text-body-sm text-ink-muted">{confirmCopy.body}</p>
+            {confirmedTarget === "OPEN" ? (
+              <p className="text-caption text-ink-muted">{openNote}</p>
+            ) : null}
             <div className="flex gap-3">
-              <Submit label="Publish" />
+              <Submit
+                label={confirmCopy.submit}
+                danger={confirmedTarget === "CLOSED"}
+              />
               <Button
                 type="button"
                 variant="ghost"
-                onClick={() => setConfirming(false)}
+                onClick={() => setConfirming(null)}
               >
                 Cancel
               </Button>
             </div>
           </form>
-        ) : next.to === "PUBLISHED" ? (
-          <Button
-            type="button"
-            onClick={() => setConfirming(true)}
-            disabled={publishBlocked}
-          >
-            Publish results
-          </Button>
         ) : (
-          <form action={formAction} className="flex flex-col gap-2">
-            <input type="hidden" name="id" value={electionId} />
-            <input type="hidden" name="to" value={next.to} />
-            <div>
-              <Submit label={next.cta} danger={next.to === "CLOSED"} />
-            </div>
+          <div className="flex flex-col gap-2">
+            <Button
+              type="button"
+              onClick={() => setConfirming(next.to)}
+              disabled={publishBlocked && next.to === "PUBLISHED"}
+              variant={next.to === "CLOSED" ? "danger" : "primary"}
+            >
+              {next.cta}
+            </Button>
             {next.to === "OPEN" ? (
               <p className="text-caption text-ink-muted">{openNote}</p>
             ) : null}
-          </form>
+          </div>
         )}
       </div>
     </div>

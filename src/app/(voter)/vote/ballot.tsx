@@ -19,7 +19,7 @@ export type BallotCandidate = {
 function Confirm({ name }: { name: string }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending}>
+    <Button type="submit" disabled={pending} className="!min-h-14 !px-7">
       {pending ? "Casting…" : `Cast my vote for ${name}`}
     </Button>
   );
@@ -36,29 +36,24 @@ export function CategoryBallot({
   awardLabels: string[];
   candidates: BallotCandidate[];
 }) {
-  const [state, formAction] = useActionState<CastState, FormData>(
-    castVote,
-    {},
-  );
+  const [state, formAction] = useActionState<CastState, FormData>(castVote, {});
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [confirming, setConfirming] = useState(false);
 
   const selected = candidates.find((candidate) => candidate.id === selectedId);
 
   return (
-    <section className="border border-hairline bg-canvas">
-      <div className="flex flex-wrap items-baseline justify-between gap-2 border-b border-hairline px-6 py-4">
-        <h2 className="text-card-title">{categoryName}</h2>
-        <p className="text-body-sm text-ink-muted">
-          {awardLabels.length > 0
-            ? `Deciding: ${awardLabels.join(", ")}`
-            : "One vote"}
+    <section className="overflow-hidden rounded-[28px] border border-hairline bg-canvas shadow-card">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 bg-[image:var(--gradient-mesh)] bg-inverse-canvas px-7 py-5">
+        <h2 className="text-headline text-inverse-ink">{categoryName}</h2>
+        <p className="rounded-full bg-white/10 px-3 py-1.5 text-caption font-semibold text-inverse-ink-muted">
+          {awardLabels.length > 0 ? `Deciding: ${awardLabels.join(", ")}` : "One vote"}
         </p>
       </div>
 
-      <div className="px-6 py-6">
+      <div className="px-6 py-7">
         {state.error ? (
-          <div className="mb-4">
+          <div className="mb-5">
             <FormError>{state.error}</FormError>
           </div>
         ) : null}
@@ -66,12 +61,12 @@ export function CategoryBallot({
         <ul
           role="radiogroup"
           aria-label={`Candidates for ${categoryName}`}
-          className="grid gap-px bg-hairline sm:grid-cols-2 lg:grid-cols-3"
+          className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
         >
           {candidates.map((candidate) => {
             const isSelected = candidate.id === selectedId;
             return (
-              <li key={candidate.id} className="bg-canvas">
+              <li key={candidate.id}>
                 <button
                   type="button"
                   role="radio"
@@ -79,13 +74,13 @@ export function CategoryBallot({
                   disabled={confirming}
                   onClick={() => setSelectedId(candidate.id)}
                   className={
-                    "flex w-full cursor-pointer flex-col p-4 text-left transition-colors " +
+                    "card-hover flex w-full cursor-pointer flex-col rounded-2xl border-2 p-4 text-left transition-all " +
                     (isSelected
-                      ? "bg-surface-1 outline outline-2 -outline-offset-2 outline-primary"
-                      : "hover:bg-surface-1")
+                      ? "border-primary bg-primary/5 shadow-[0_0_0_4px_rgb(91_61_246/0.12)]"
+                      : "border-hairline bg-canvas hover:border-primary/40")
                   }
                 >
-                  <div className="relative mb-3 aspect-[4/5] w-full bg-surface-1">
+                  <div className="relative mb-3 aspect-[4/5] w-full overflow-hidden rounded-xl bg-surface-1">
                     <Image
                       src={candidate.photo_url}
                       alt=""
@@ -93,17 +88,18 @@ export function CategoryBallot({
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
                       className="object-cover"
                     />
+                    {isSelected ? (
+                      <span className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[image:var(--gradient-brand)] text-sm text-white shadow-soft">
+                        ✓
+                      </span>
+                    ) : null}
                   </div>
-                  <span className="text-body text-ink">
-                    {candidate.display_name}
-                  </span>
+                  <span className="text-body font-semibold text-ink">{candidate.display_name}</span>
                   {candidate.tagline ? (
-                    <span className="text-caption text-ink-muted">
-                      {candidate.tagline}
-                    </span>
+                    <span className="mt-0.5 text-caption text-ink-muted">{candidate.tagline}</span>
                   ) : null}
                   {candidate.department_code ? (
-                    <span className="mt-1 text-caption text-ink-subtle">
+                    <span className="mt-2 inline-block w-fit rounded-full bg-surface-2 px-2.5 py-1 text-caption font-medium text-ink-subtle">
                       {candidate.department_code}
                     </span>
                   ) : null}
@@ -113,25 +109,21 @@ export function CategoryBallot({
           })}
         </ul>
 
-        <div className="mt-6 border-t border-hairline pt-6">
+        <div className="mt-7 border-t border-hairline pt-6">
           {confirming && selected ? (
-            <form action={formAction} className="flex flex-col gap-3">
+            <form action={formAction} className="flex flex-col gap-3 rounded-2xl bg-surface-1 p-5">
               <input type="hidden" name="categoryId" value={categoryId} />
               <input type="hidden" name="candidateId" value={selected.id} />
-              <p className="text-body text-ink">
+              <p className="text-body font-semibold text-ink">
                 Cast your vote for {selected.display_name}?
               </p>
               <p className="text-body-sm text-ink-muted">
-                This is final. You get one vote in {categoryName}, and it
-                can&rsquo;t be changed or withdrawn afterwards.
+                This is final. You get one vote in {categoryName}, and it can&rsquo;t
+                be changed or withdrawn afterwards.
               </p>
-              <div className="flex flex-wrap gap-3">
+              <div className="flex flex-wrap gap-3 pt-1">
                 <Confirm name={selected.display_name} />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  onClick={() => setConfirming(false)}
-                >
+                <Button type="button" variant="ghost" onClick={() => setConfirming(false)}>
                   Go back
                 </Button>
               </div>
@@ -141,8 +133,9 @@ export function CategoryBallot({
               type="button"
               disabled={!selected}
               onClick={() => setConfirming(true)}
+              className="!min-h-14 !px-7"
             >
-              {selected ? `Continue with ${selected.display_name}` : "Continue"}
+              {selected ? `Continue with ${selected.display_name}` : "Select a candidate"}
             </Button>
           )}
         </div>

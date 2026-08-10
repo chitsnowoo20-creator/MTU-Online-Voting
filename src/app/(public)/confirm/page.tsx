@@ -53,7 +53,7 @@ export default async function ConfirmPage({
       </div>
 
       <p className="mt-8 text-body-sm text-ink-muted">
-        Already confirmed? <Link href="/login">Sign in</Link>
+        Already confirmed? <Link className="auth-link" href="/login">Sign in</Link>
       </p>
     </AuthShell>
   );

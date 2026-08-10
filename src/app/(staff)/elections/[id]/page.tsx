@@ -93,7 +93,7 @@ export default async function ElectionPage({
     >
       <div className="grid gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-6">
-          <div className="border border-hairline bg-canvas">
+          <div className="surface-card">
             <div className="border-b border-hairline px-6 py-4">
               <h2 className="text-card-title">Schedule</h2>
             </div>
@@ -113,7 +113,7 @@ export default async function ElectionPage({
             </dl>
           </div>
 
-          <div className="border border-hairline bg-canvas">
+          <div className="surface-card">
             <div className="flex items-center justify-between gap-4 border-b border-hairline px-6 py-4">
               <h2 className="text-card-title">Ballot</h2>
               {isDraft ? (

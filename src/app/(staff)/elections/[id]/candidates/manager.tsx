@@ -56,7 +56,7 @@ export function CandidateManager({
 
   if (categories.length === 0) {
     return (
-      <div className="border border-hairline bg-canvas px-6 py-12 text-center">
+      <div className="surface-card px-6 py-12 text-center">
         <p className="text-body text-ink-muted">
           Add a category first — every candidate belongs to exactly one.
         </p>
@@ -229,7 +229,7 @@ export function CandidateManager({
           {active && active.candidates.length > 0 ? (
             <ul className="grid gap-px bg-hairline sm:grid-cols-2 lg:grid-cols-3">
               {active.candidates.map((candidate) => (
-                <li key={candidate.id} className="bg-canvas p-4">
+                <li key={candidate.id} className="surface-card p-4">
                   <div className="relative mb-3 aspect-[4/5] w-full bg-surface-1">
                     <Image
                       src={candidate.photo_url}
@@ -270,7 +270,7 @@ export function CandidateManager({
               ))}
             </ul>
           ) : (
-            <div className="border border-hairline bg-canvas px-6 py-12 text-center text-body-sm text-ink-muted">
+            <div className="surface-card px-6 py-12 text-center text-body-sm text-ink-muted">
               No candidates in this category yet.
             </div>
           )}

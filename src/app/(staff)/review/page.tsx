@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { DataTable } from "@/components/ui/data-table";
 import { Tag } from "@/components/ui/tag";
 import { requireRole } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
@@ -35,7 +36,7 @@ export default async function ReviewQueuePage() {
   return (
     <main className="flex-1 bg-surface-1 px-4 py-16">
       <div className="mx-auto w-full max-w-[880px]">
-        <div className="border border-hairline bg-canvas">
+        <div className="surface-panel">
           <div className="flex items-center justify-between gap-4 border-b border-hairline px-6 py-4">
             <div>
               <h1 className="text-card-title">Verification queue</h1>
@@ -55,34 +56,60 @@ export default async function ReviewQueuePage() {
               Nothing waiting. New submissions appear here as they arrive.
             </p>
           ) : (
-            <table className="w-full border-collapse text-body-sm">
-              <thead>
-                <tr className="border-b border-hairline text-left text-caption text-ink-muted">
-                  <th className="px-6 py-3 font-normal">Submitter</th>
-                  <th className="px-6 py-3 font-normal">Submitted</th>
-                  <th className="px-6 py-3 font-normal" />
-                </tr>
-              </thead>
-              <tbody>
+            <>
+              <ul className="flex flex-col divide-y divide-hairline md:hidden">
                 {rows.map((row) => (
-                  <tr
-                    key={row.submission_id}
-                    className="border-b border-hairline last:border-b-0"
-                  >
-                    <td className="px-6 py-4">
-                      <p className="text-ink">{row.full_name}</p>
-                      <p className="text-caption text-ink-muted">{row.email}</p>
-                    </td>
-                    <td className="px-6 py-4 text-ink-muted">
+                  <li key={row.submission_id} className="px-6 py-4">
+                    <p className="text-ink">{row.full_name}</p>
+                    <p className="text-caption text-ink-muted">{row.email}</p>
+                    <p className="mt-2 text-body-sm text-ink-muted">
+                      Submitted{" "}
                       {row.submitted_at ? relative(row.submitted_at) : "—"}
-                    </td>
-                    <td className="px-6 py-4 text-right">
+                    </p>
+                    <p className="mt-3 text-body-sm">
                       <Link href={`/review/${row.submission_id}`}>Review</Link>
-                    </td>
-                  </tr>
+                    </p>
+                  </li>
                 ))}
-              </tbody>
-            </table>
+              </ul>
+
+              <div className="hidden md:block">
+                <DataTable>
+                  <table className="w-full border-collapse text-body-sm">
+                  <thead>
+                    <tr className="border-b border-hairline text-left text-caption text-ink-muted">
+                      <th className="px-6 py-3 font-normal">Submitter</th>
+                      <th className="px-6 py-3 font-normal">Submitted</th>
+                      <th className="px-6 py-3 font-normal" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((row) => (
+                      <tr
+                        key={row.submission_id}
+                        className="border-b border-hairline last:border-b-0"
+                      >
+                        <td className="px-6 py-4">
+                          <p className="text-ink">{row.full_name}</p>
+                          <p className="text-caption text-ink-muted">
+                            {row.email}
+                          </p>
+                        </td>
+                        <td className="px-6 py-4 text-ink-muted">
+                          {row.submitted_at ? relative(row.submitted_at) : "—"}
+                        </td>
+                        <td className="px-6 py-4 text-right">
+                          <Link href={`/review/${row.submission_id}`}>
+                            Review
+                          </Link>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  </table>
+                </DataTable>
+              </div>
+            </>
           )}
         </div>
 

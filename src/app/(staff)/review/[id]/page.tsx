@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { DecisionForm } from "./decision-form";
+import { IdCardViewer } from "./id-card-viewer";
 import { requireRole } from "@/lib/auth/guards";
 import { createClient } from "@/lib/supabase/server";
 
@@ -43,7 +44,7 @@ export default async function ReviewDetailPage({
   const { data: signed } = submission.id_card_path
     ? await supabase.storage
         .from("id-cards")
-        .createSignedUrl(submission.id_card_path, 60)
+        .createSignedUrl(submission.id_card_path, 300)
     : { data: null };
 
   return (
@@ -53,7 +54,7 @@ export default async function ReviewDetailPage({
           <Link href="/review">← Verification queue</Link>
         </p>
 
-        <div className="border border-hairline bg-canvas">
+        <div className="surface-panel">
           <div className="flex items-baseline justify-between gap-4 border-b border-hairline px-6 py-4">
             <div>
               <h1 className="text-card-title">Review submission</h1>
@@ -67,35 +68,15 @@ export default async function ReviewDetailPage({
           </div>
 
           <div className="grid gap-px bg-hairline md:grid-cols-2">
-            <section className="bg-canvas p-6">
-              <p className="text-caption text-ink-muted">Uploaded ID card</p>
-              <p className="mt-1 text-caption text-ink-subtle">
-                Link expires in 60 seconds. Deleted immediately after your
-                decision.
-              </p>
-              <div className="mt-4 border border-hairline bg-surface-1">
-                {signed?.signedUrl ? (
-                  /*
-                   * A plain <img>, not next/image, on purpose: the image
-                   * optimizer writes optimized copies into .next/cache, which
-                   * would keep an ID card on disk after we deleted the
-                   * original (invariant 6).
-                   */
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    src={signed.signedUrl}
-                    alt={`ID card submitted by ${submission.full_name}`}
-                    className="h-auto w-full"
-                  />
-                ) : (
-                  <p className="p-6 text-body-sm text-ink-muted">
-                    The image is no longer available.
-                  </p>
-                )}
-              </div>
+            <section className="surface-card p-6">
+              <IdCardViewer
+                submissionId={submission.submission_id!}
+                fullName={submission.full_name ?? ""}
+                initialUrl={signed?.signedUrl ?? null}
+              />
             </section>
 
-            <section className="bg-canvas p-6">
+            <section className="surface-card p-6">
               <DecisionForm
                 submissionId={submission.submission_id!}
                 fullName={submission.full_name ?? ""}

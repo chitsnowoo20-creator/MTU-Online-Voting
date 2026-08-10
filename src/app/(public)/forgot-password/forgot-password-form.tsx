@@ -1,10 +1,9 @@
 "use client";
 
-import Link from "next/link";
 import { useActionState } from "react";
 import { useFormStatus } from "react-dom";
 
-import { login, type FormState } from "../auth-actions";
+import { requestPasswordReset, type FormState } from "../auth-actions";
 import { Button } from "@/components/ui/button";
 import { Field, TextInput } from "@/components/ui/field";
 import { FormError } from "@/components/ui/tile";
@@ -13,22 +12,34 @@ function SubmitButton() {
   const { pending } = useFormStatus();
   return (
     <Button type="submit" disabled={pending} className="w-full">
-      {pending ? "Signing in…" : "Sign in"}
+      {pending ? "Sending…" : "Send reset link"}
     </Button>
   );
 }
 
-export function LoginForm({ next }: { next?: string }) {
-  const [state, formAction] = useActionState<FormState, FormData>(login, {});
+export function ForgotPasswordForm() {
+  const [state, formAction] = useActionState<FormState, FormData>(
+    requestPasswordReset,
+    {},
+  );
+
+  if (state.sent) {
+    return (
+      <p className="text-body text-ink-muted">
+        If that address is registered, a reset link is on its way. Check your
+        inbox and spam folder.
+      </p>
+    );
+  }
 
   return (
     <form action={formAction} className="flex flex-col gap-6">
       {state.error ? <FormError>{state.error}</FormError> : null}
-      {next ? <input type="hidden" name="next" value={next} /> : null}
 
       <Field
         label="Email address"
         htmlFor="email"
+        helper="We'll send a link to reset your password."
         error={state.fieldErrors?.email}
       >
         <TextInput
@@ -40,25 +51,6 @@ export function LoginForm({ next }: { next?: string }) {
           invalid={Boolean(state.fieldErrors?.email)}
         />
       </Field>
-
-      <Field
-        label="Password"
-        htmlFor="password"
-        error={state.fieldErrors?.password}
-      >
-        <TextInput
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          invalid={Boolean(state.fieldErrors?.password)}
-        />
-      </Field>
-
-      <p className="-mt-2 text-body-sm">
-        <Link href="/forgot-password">Forgot password?</Link>
-      </p>
 
       <SubmitButton />
     </form>

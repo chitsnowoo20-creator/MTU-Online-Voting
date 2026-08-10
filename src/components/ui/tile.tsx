@@ -1,9 +1,5 @@
 import type { ComponentProps, ReactNode } from "react";
 
-/**
- * A bordered tile. Depth in Carbon comes from a 1px hairline and a surface
- * change, never from a drop shadow.
- */
 export function Tile({
   elevated = false,
   className = "",
@@ -12,7 +8,7 @@ export function Tile({
   return (
     <div
       className={
-        `border border-hairline p-6 ${elevated ? "bg-surface-1" : "bg-canvas"} ` +
+        `rounded-2xl border border-hairline shadow-soft ${elevated ? "bg-surface-1 shadow-card" : "bg-canvas"} ` +
         className
       }
       {...props}
@@ -20,22 +16,22 @@ export function Tile({
   );
 }
 
-/** The small grey label that sits above a heading. Sentence case, never caps. */
 export function Eyebrow({ children }: { children: ReactNode }) {
-  return <p className="text-body-sm text-ink-muted">{children}</p>;
+  return (
+    <p className="text-caption font-bold uppercase tracking-[0.14em] text-brand-ink">
+      {children}
+    </p>
+  );
 }
 
-/**
- * The inline error banner used when a Server Action rejects a submission.
- * Carbon marks these with a red left rule rather than a filled box.
- */
 export function FormError({ children }: { children: ReactNode }) {
   return (
     <div
       role="alert"
-      className="border-l-2 border-error bg-error-bg px-4 py-3 text-body-sm text-ink"
+      className="flex items-start gap-2 rounded-xl border border-error/20 bg-error-bg px-4 py-3 text-body-sm text-ink"
     >
-      {children}
+      <span className="mt-0.5 text-error">⚠</span>
+      <span>{children}</span>
     </div>
   );
 }

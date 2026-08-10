@@ -29,7 +29,7 @@ function Notice({
   children: React.ReactNode;
 }) {
   return (
-    <div className="border border-hairline bg-canvas px-6 py-10 text-center">
+    <div className="surface-panel px-6 py-10 text-center">
       <h1 className="text-card-title">{title}</h1>
       <div className="mt-2 text-body text-ink-muted">{children}</div>
     </div>
@@ -109,7 +109,7 @@ export default async function VotePage() {
       </div>
 
       {remaining.length === 0 ? (
-        <div className="border border-hairline bg-canvas px-6 py-10">
+        <div className="surface-panel px-6 py-10">
           <h2 className="text-card-title">Your vote is in</h2>
           <p className="mt-2 text-body text-ink-muted">
             You&rsquo;ve voted in every category. Results are published after
@@ -133,7 +133,7 @@ export default async function VotePage() {
               return (
                 <section
                   key={category.id}
-                  className="flex flex-wrap items-center justify-between gap-3 border border-hairline bg-canvas px-6 py-5"
+                  className="surface-card flex flex-wrap items-center justify-between gap-3 px-6 py-5"
                 >
                   <div>
                     <h2 className="text-card-title">{category.name}</h2>

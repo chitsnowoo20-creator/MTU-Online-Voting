@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { StaffPage } from "@/components/staff/shell";
 import { Button } from "@/components/ui/button";
+import { DataTable } from "@/components/ui/data-table";
 import { TextInput } from "@/components/ui/field";
 import { Tag } from "@/components/ui/tag";
 import { requireRole } from "@/lib/auth/guards";
@@ -146,7 +147,7 @@ export default async function AuditPage({
         </Button>
       </form>
 
-      <div className="border border-hairline bg-canvas">
+      <div className="surface-panel">
         {error ? (
           <p className="px-6 py-8 text-body-sm text-error-ink">
             {error.message}
@@ -156,38 +157,65 @@ export default async function AuditPage({
             No entries match those filters.
           </p>
         ) : (
-          <table className="w-full border-collapse text-body-sm">
-            <thead>
-              <tr className="border-b border-hairline text-left text-caption text-ink-muted">
-                <th className="px-6 py-3 font-normal">When</th>
-                <th className="px-6 py-3 font-normal">Actor</th>
-                <th className="px-6 py-3 font-normal">Action</th>
-              </tr>
-            </thead>
-            <tbody>
+          <>
+            <ul className="flex flex-col divide-y divide-hairline md:hidden">
               {entries.map((entry) => (
-                <tr
-                  key={entry.id}
-                  className="border-b border-hairline last:border-b-0 align-top"
-                >
-                  <td className="px-6 py-4 whitespace-nowrap text-ink-muted">
+                <li key={entry.id} className="px-6 py-4">
+                  <p className="text-body-sm text-ink-muted">
                     {new Date(entry.created_at).toLocaleString("en-GB", {
                       dateStyle: "medium",
                       timeStyle: "short",
                     })}
-                  </td>
-                  <td className="px-6 py-4 text-ink-muted">
+                  </p>
+                  <p className="mt-1 text-body-sm text-ink-muted">
                     {emailFor(entry.actor_id) ?? (
                       <span className="text-ink-subtle">System</span>
                     )}
-                  </td>
-                  <td className="px-6 py-4">
+                  </p>
+                  <div className="mt-2 text-body-sm">
                     {describeEntry(entry, emailFor)}
-                  </td>
-                </tr>
+                  </div>
+                </li>
               ))}
-            </tbody>
-          </table>
+            </ul>
+
+            <div className="hidden md:block">
+              <DataTable minWidth={720}>
+                <table className="w-full border-collapse text-body-sm">
+                  <thead>
+                    <tr className="border-b border-hairline text-left text-caption text-ink-muted">
+                      <th className="px-6 py-3 font-normal">When</th>
+                      <th className="px-6 py-3 font-normal">Actor</th>
+                      <th className="px-6 py-3 font-normal">Action</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {entries.map((entry) => (
+                      <tr
+                        key={entry.id}
+                        className="border-b border-hairline last:border-b-0 align-top"
+                      >
+                        <td className="px-6 py-4 whitespace-nowrap text-ink-muted">
+                          {new Date(entry.created_at).toLocaleString("en-GB", {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          })}
+                        </td>
+                        <td className="px-6 py-4 text-ink-muted">
+                          {emailFor(entry.actor_id) ?? (
+                            <span className="text-ink-subtle">System</span>
+                          )}
+                        </td>
+                        <td className="px-6 py-4">
+                          {describeEntry(entry, emailFor)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </DataTable>
+            </div>
+          </>
         )}
       </div>
 
