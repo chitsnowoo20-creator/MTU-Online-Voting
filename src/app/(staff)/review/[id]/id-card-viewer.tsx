@@ -67,7 +67,7 @@ export function IdCardViewer({
         </div>
       ) : null}
 
-      <div className="mt-4 border border-hairline bg-surface-1">
+      <div className="mt-4 overflow-hidden rounded-2xl border border-hairline bg-surface-1 shadow-soft">
         {url && !expired ? (
           // eslint-disable-next-line @next/next/no-img-element
           <img

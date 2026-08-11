@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 
 import { ButtonLink } from "@/components/ui/button";
@@ -115,14 +116,30 @@ export default async function Home() {
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-4 sm:gap-8">
             <Link href="/" className="flex items-center gap-2.5 text-ink no-underline hover:no-underline">
-              <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[image:var(--gradient-brand)] text-sm font-extrabold text-white shadow-soft">
-                M
+              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white shadow-soft ring-1 ring-hairline">
+                <Image
+                  src="/MTU.png"
+                  alt="MTU logo"
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-contain"
+                />
               </span>
               <span className="truncate text-body-sm font-bold tracking-tight">MTU Elections</span>
             </Link>
-            <nav className="hidden gap-6 text-body-sm font-medium text-ink-muted sm:flex">
-              <Link href="#how-it-works" className="hover:text-ink">How it works</Link>
-              <Link href="/results" className="hover:text-ink">Results</Link>
+            <nav className="hidden items-center gap-2 sm:flex">
+              <Link
+                href="#how-it-works"
+                className="rounded-xl border border-transparent px-4 py-2 text-body-sm font-semibold text-ink-muted no-underline transition-all hover:border-primary/20 hover:bg-primary/8 hover:text-brand-ink hover:shadow-soft hover:no-underline"
+              >
+                How it works
+              </Link>
+              <Link
+                href="/results"
+                className="rounded-xl border border-primary/30 bg-primary/8 px-4 py-2 text-body-sm font-semibold text-brand-ink no-underline shadow-[0_5px_14px_-10px_rgb(35_120_167/0.55)] transition-all hover:-translate-y-0.5 hover:border-primary/55 hover:bg-primary/15 hover:shadow-soft hover:no-underline"
+              >
+                Results
+              </Link>
             </nav>
           </div>
           {user ? (
@@ -145,53 +162,114 @@ export default async function Home() {
           <div className="pointer-events-none absolute bottom-8 right-[18%] h-28 w-28 rounded-full bg-campus-red/10 blur-3xl" />
 
           <div className="relative mx-auto max-w-[1120px] px-4 py-16 sm:px-6 sm:py-28">
-            <div className="animate-fade-up">
-              <Tag tone={tone}>{status}</Tag>
-            </div>
-            <h1 className="animate-fade-up mt-6 max-w-[760px] text-display-md text-ink sm:text-display-xl" style={{ animationDelay: "0.05s" }}>
-              Your campus.{" "}
-              <span className="brand-gradient-text">
-                Your King & Queen.
-              </span>
-            </h1>
-            <p className="animate-fade-up mt-5 max-w-[560px] text-body-lg text-ink-muted" style={{ animationDelay: "0.1s" }}>
-              Every verified student and staff member gets one vote per category.
-              Verify once, vote in under a minute. Results stay sealed until the
-              election officer publishes them.
-            </p>
+            <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+              <div>
+                <div className="animate-fade-up">
+                  <Tag tone={tone}>{status}</Tag>
+                </div>
+                <h1 className="animate-fade-up mt-6 max-w-[760px] text-display-md text-ink sm:text-display-xl" style={{ animationDelay: "0.05s" }}>
+                  Your campus.{" "}
+                  <span className="brand-gradient-text">
+                    Your King & Queen.
+                  </span>
+                </h1>
+                <p className="animate-fade-up mt-5 max-w-[560px] text-body-lg text-ink-muted" style={{ animationDelay: "0.1s" }}>
+                  Every verified student and staff member gets one vote per category.
+                  Verify once, vote in under a minute. Results stay sealed until the
+                  election officer publishes them.
+                </p>
 
-            <div className="animate-fade-up mt-9 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "0.15s" }}>
-              <ButtonLink href={cta.href} className="!min-h-14 !w-full !px-7 !text-body sm:!w-auto">
-                {cta.label}
-              </ButtonLink>
-              {!user ? (
-                <ButtonLink
-                  href="/login"
-                  variant="tertiary"
-                  className="!min-h-14 !w-full !border-primary/30 !bg-white/80 !px-7 !text-body !text-brand-ink hover:!border-primary hover:!bg-white sm:!w-auto"
-                >
-                  Sign in
-                </ButtonLink>
-              ) : null}
-            </div>
+                <div className="animate-fade-up mt-9 flex flex-col gap-3 sm:flex-row" style={{ animationDelay: "0.15s" }}>
+                  <ButtonLink href={cta.href} className="!min-h-14 !w-full !px-7 !text-body sm:!w-auto">
+                    {cta.label}
+                  </ButtonLink>
+                  {!user ? (
+                    <ButtonLink
+                      href="/login"
+                      variant="tertiary"
+                      className="!min-h-14 !w-full !border-primary/30 !bg-white/80 !px-7 !text-body !text-brand-ink hover:!border-primary hover:!bg-white sm:!w-auto"
+                    >
+                      Sign in
+                    </ButtonLink>
+                  ) : null}
+                </div>
 
-            {featured && categoryCount > 0 ? (
-              <div className="animate-fade-up mt-12 grid gap-3 sm:mt-16 sm:grid-cols-3" style={{ animationDelay: "0.2s" }}>
-                {[
-                  { label: "categories on the ballot", value: categoryCount },
-                  { label: "candidates standing", value: candidateCount },
-                  {
-                    label: featured.state === "OPEN" ? "until voting closes" : "voting closed",
-                    value: featured.closes_at ? formatCountdown(featured.closes_at).replace(/^in /, "") : "—",
-                  },
-                ].map((stat) => (
-                  <div key={stat.label} className="glass-panel card-hover rounded-2xl p-5 shadow-soft sm:p-6">
-                    <dd className="text-display-md text-ink">{stat.value}</dd>
-                    <dt className="mt-1 text-body-sm text-ink-muted">{stat.label}</dt>
+                {featured && categoryCount > 0 ? (
+                  <div className="animate-fade-up mt-12 grid gap-3 sm:mt-16 sm:grid-cols-3" style={{ animationDelay: "0.2s" }}>
+                    {[
+                      { label: "categories on the ballot", value: categoryCount },
+                      { label: "candidates standing", value: candidateCount },
+                      {
+                        label: featured.state === "OPEN" ? "until voting closes" : "voting closed",
+                        value: featured.closes_at ? formatCountdown(featured.closes_at).replace(/^in /, "") : "—",
+                      },
+                    ].map((stat) => (
+                      <div key={stat.label} className="glass-panel card-hover rounded-2xl p-5 shadow-soft sm:p-6">
+                        <dd className="text-display-md text-ink">{stat.value}</dd>
+                        <dt className="mt-1 text-body-sm text-ink-muted">{stat.label}</dt>
+                      </div>
+                    ))}
                   </div>
-                ))}
+                ) : null}
               </div>
-            ) : null}
+
+              {/* Hero image — man-tu.jpg in a modern card */}
+              <div className="animate-fade-up relative hidden lg:block" style={{ animationDelay: "0.2s" }}>
+                <div className="relative">
+                  {/* Decorative backdrop */}
+                  <div className="absolute -inset-4 rounded-[36px] bg-[image:var(--gradient-brand)] opacity-15 blur-2xl" aria-hidden="true" />
+                  <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-campus-yellow/20 blur-xl" aria-hidden="true" />
+                  <div className="absolute -bottom-8 -left-8 h-28 w-28 rounded-full bg-campus-red/10 blur-xl" aria-hidden="true" />
+
+                  {/* Main image card */}
+                  <div className="relative overflow-hidden rounded-[28px] border border-white/60 bg-white/70 shadow-lift backdrop-blur-xl">
+                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-[image:var(--gradient-mesh)]">
+                      <Image
+                        src="/man-tu.jpg"
+                        alt="Myanmar Technological University campus"
+                        fill
+                        sizes="(max-width: 1024px) 0vw, 480px"
+                        className="object-cover transition-transform duration-700 hover:scale-[1.025]"
+                        priority
+                      />
+                      {/* Soft gradient overlay for depth */}
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/15 via-transparent to-transparent" aria-hidden="true" />
+                    </div>
+
+                    {/* Floating stat chip */}
+                    <div className="hidden">
+                      <p className="text-caption font-bold text-brand-ink">MTU</p>
+                      <p className="text-caption text-ink-muted">Campus Elections</p>
+                    </div>
+
+                    {/* Floating badge */}
+                    <div className="hidden">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[image:var(--gradient-gold)] text-sm">👑</span>
+                      <div>
+                        <p className="text-caption font-bold text-ink">King & Queen</p>
+                        <p className="text-caption text-ink-muted">Vote now</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="relative mx-6 -mt-8 flex items-center justify-between gap-4 rounded-2xl border border-white/80 bg-canvas/95 px-5 py-4 shadow-card backdrop-blur">
+                    <div>
+                      <p className="text-caption font-bold uppercase tracking-[0.14em] text-brand-ink">
+                        MTU Elections
+                      </p>
+                      <p className="mt-1 text-body-sm font-semibold text-ink">
+                        A campus tradition, decided by you.
+                      </p>
+                    </div>
+                    <span
+                      aria-hidden="true"
+                      className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[image:var(--gradient-gold)] text-lg shadow-soft"
+                    >
+                      ★
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -263,7 +341,15 @@ export default async function Home() {
         <div className="mx-auto grid max-w-[1120px] gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 sm:py-16">
           <div className="border-b border-white/10 pb-8 sm:border-b-0 sm:pb-0">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-[image:var(--gradient-brand)] text-xs font-extrabold text-white">M</span>
+              <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white/10 ring-1 ring-white/20">
+                <Image
+                  src="/MTU.png"
+                  alt="MTU logo"
+                  width={32}
+                  height={32}
+                  className="h-full w-full object-contain"
+                />
+              </span>
               <span className="text-body-sm font-bold text-inverse-ink">MTU Elections</span>
             </div>
             <p className="mt-3 max-w-[420px] text-body-sm leading-relaxed">

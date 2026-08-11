@@ -78,7 +78,7 @@ export function UploadForm({ userId }: { userId: string }) {
           event.preventDefault();
           choose(event.dataTransfer.files[0] ?? null);
         }}
-        className="flex flex-col items-center gap-3 border border-dashed border-hairline bg-surface-1 px-6 py-10 text-center"
+        className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-primary/30 bg-primary/5 px-6 py-10 text-center transition-colors hover:border-primary/50 hover:bg-primary/10"
       >
         <p className="text-body text-ink">Drag and drop the photo here</p>
         <p className="text-caption text-ink-muted">JPG, PNG or WebP · max 5 MB</p>

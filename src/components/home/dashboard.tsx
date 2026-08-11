@@ -152,8 +152,9 @@ export function HomeDashboard({
         </div>
 
         {deadlineAhead && user.voterStatus !== "APPROVED" ? (
-          <div className="mt-4 border border-hairline bg-primary px-6 py-4 shadow-sm">
-            <p className="text-body-sm text-on-primary">
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-primary/20 bg-primary/10 px-6 py-4 shadow-soft">
+            <p className="flex items-center gap-2 text-body-sm font-medium text-brand-ink">
+              <span className="text-lg">⏰</span>
               Verification closes {formatMoment(deadline)} — get verified before
               the ballot opens.
             </p>

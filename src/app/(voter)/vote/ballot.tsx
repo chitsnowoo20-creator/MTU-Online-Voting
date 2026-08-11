@@ -74,20 +74,29 @@ export function CategoryBallot({
                   disabled={confirming}
                   onClick={() => setSelectedId(candidate.id)}
                   className={
-                    "card-hover flex w-full cursor-pointer flex-col rounded-2xl border-2 p-4 text-left transition-all " +
+                    "card-hover group flex w-full cursor-pointer flex-col rounded-2xl border-2 p-4 text-left transition-all " +
                     (isSelected
-                      ? "border-primary bg-primary/5 shadow-[0_0_0_4px_rgb(91_61_246/0.12)]"
-                      : "border-hairline bg-canvas hover:border-primary/40")
+                      ? "border-primary bg-primary/5 shadow-[0_0_0_4px_rgb(87_173_222/0.15)]"
+                      : "border-hairline bg-canvas hover:border-primary/40 hover:shadow-soft")
                   }
                 >
-                  <div className="relative mb-3 aspect-[4/5] w-full overflow-hidden rounded-xl bg-surface-1">
+                  <div
+                    className={
+                      "relative mb-3 aspect-[4/5] w-full overflow-hidden rounded-xl bg-surface-1 transition-all duration-300 " +
+                      (isSelected
+                        ? "ring-2 ring-primary ring-offset-2"
+                        : "ring-1 ring-hairline group-hover:ring-primary/30")
+                    }
+                  >
                     <Image
                       src={candidate.photo_url}
                       alt=""
                       fill
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
-                      className="object-cover"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                     />
+                    {/* Soft gradient overlay for depth */}
+                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/10 via-transparent to-transparent" aria-hidden="true" />
                     {isSelected ? (
                       <span className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[image:var(--gradient-brand)] text-sm text-white shadow-soft">
                         ✓

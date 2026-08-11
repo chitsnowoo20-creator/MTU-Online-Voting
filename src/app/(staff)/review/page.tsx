@@ -52,9 +52,16 @@ export default async function ReviewQueuePage() {
               {error.message}
             </p>
           ) : rows.length === 0 ? (
-            <p className="px-6 py-12 text-center text-body text-ink-muted">
-              Nothing waiting. New submissions appear here as they arrive.
-            </p>
+            <div className="relative overflow-hidden px-6 py-14 text-center">
+              <div className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
+              <div className="relative mx-auto max-w-sm">
+                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-success-bg text-2xl text-success-ink shadow-soft">✓</span>
+                <p className="mt-5 text-card-title text-ink">Queue is clear</p>
+                <p className="mt-2 text-body text-ink-muted">
+                  Nothing is waiting for review. New submissions appear here as they arrive.
+                </p>
+              </div>
+            </div>
           ) : (
             <>
               <ul className="flex flex-col divide-y divide-hairline md:hidden">

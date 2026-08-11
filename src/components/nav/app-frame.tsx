@@ -37,6 +37,7 @@ export async function AppFrame({ children }: { children: ReactNode }) {
       }}
       identity={{
         email: user.email,
+        displayName: user.fullName || user.email || "Account",
         initials: initialsOf(user.fullName, user.email),
       }}
       railExpanded={cookieStore.get("nav_rail")?.value !== "collapsed"}

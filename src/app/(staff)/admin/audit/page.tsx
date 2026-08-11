@@ -117,7 +117,7 @@ export default async function AuditPage({
             id="group"
             name="group"
             defaultValue={group ?? ""}
-            className="w-full border-b border-ink-subtle bg-surface-1 px-4 py-[11px] text-body text-ink outline-none focus:border-b-2 focus:border-primary"
+            className="w-full rounded-xl border border-hairline bg-canvas px-4 py-3 text-body text-ink shadow-[inset_0_1px_2px_rgb(20_32_51/0.03)] outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
           >
             <option value="">Everything</option>
             {Object.entries(AUDIT_GROUPS).map(([key, value]) => (

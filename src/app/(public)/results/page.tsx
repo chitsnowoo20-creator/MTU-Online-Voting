@@ -27,15 +27,18 @@ export default async function ResultsPage() {
   if (!latest) {
     return (
       <main className="surface-page flex flex-1 items-center justify-center px-4 py-16">
-        <div className="surface-panel w-full max-w-[560px] px-6 py-12 text-center">
-          <h1 className="text-card-title">Results are not yet available</h1>
-          <p className="mt-2 text-body text-ink-muted">
+        <div className="surface-panel relative w-full max-w-[560px] overflow-hidden px-6 py-12 text-center sm:px-10 sm:py-14">
+          <div className="pointer-events-none absolute -right-10 -top-10 h-40 w-40 rounded-full bg-primary/12 blur-3xl" />
+          <span className="relative mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-2xl text-brand-ink shadow-soft">◷</span>
+          <p className="relative mt-5 text-caption font-bold uppercase tracking-[0.14em] text-brand-ink">Results centre</p>
+          <h1 className="relative mt-1 text-headline">Results are not yet available</h1>
+          <p className="relative mt-3 text-body text-ink-muted">
             Nothing is published. Results appear here once voting has closed and
             the election officer publishes them — no running count exists before
             that.
           </p>
-          <p className="mt-6 text-body-sm">
-            <Link href="/">Back to the start</Link>
+          <p className="relative mt-6 text-body-sm">
+            <Link href="/" className="link-action">Back to the start</Link>
           </p>
         </div>
       </main>
@@ -55,15 +58,33 @@ export default async function ResultsPage() {
         <ElectionResults electionId={latest.id} />
 
         {earlier.length > 0 ? (
-          <section className="mt-12 border-t border-hairline pt-6">
-            <h2 className="text-card-title">Earlier elections</h2>
-            <ul className="mt-3 flex flex-col gap-2 text-body-sm">
+          <section className="mt-12 rounded-3xl border border-hairline bg-canvas p-5 shadow-soft sm:p-7">
+            <div className="flex flex-wrap items-end justify-between gap-3">
+              <div>
+                <p className="eyebrow-label">Election archive</p>
+                <h2 className="mt-1 text-card-title">Earlier elections</h2>
+              </div>
+              <p className="text-caption text-ink-muted">Browse published results</p>
+            </div>
+            <ul className="mt-5 divide-y divide-hairline border-y border-hairline">
               {earlier.map((election) => (
-                <li key={election.id} className="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-                  <Link href={`/results/${election.id}`}>{election.name}</Link>
-                  <span className="text-ink-muted">
-                    {formatMoment(election.closes_at)}
-                  </span>
+                <li key={election.id}>
+                  <Link
+                    href={`/results/${election.id}`}
+                    className="group flex items-center justify-between gap-4 px-1 py-4 text-body-sm no-underline hover:no-underline"
+                  >
+                    <span className="min-w-0">
+                      <span className="block truncate font-semibold text-ink transition-colors group-hover:text-brand-ink">
+                        {election.name}
+                      </span>
+                      <span className="mt-0.5 block text-caption text-ink-muted">
+                        Closed {formatMoment(election.closes_at)}
+                      </span>
+                    </span>
+                    <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary/8 text-brand-ink transition-all group-hover:translate-x-1 group-hover:bg-primary/15">
+                      →
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

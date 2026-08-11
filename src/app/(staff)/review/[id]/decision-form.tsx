@@ -71,10 +71,10 @@ export function DecisionForm({
                 <label
                   key={type}
                   className={
-                    "cursor-pointer border px-4 py-3 text-body-sm " +
+                    "cursor-pointer border px-4 py-3 text-body-sm transition-all " +
                     (memberType === type
-                      ? "border-ink bg-ink text-inverse-ink"
-                      : "border-hairline bg-canvas text-ink-muted")
+                      ? "border-primary bg-primary/10 text-brand-ink shadow-[0_0_0_3px_rgb(87_173_222/0.15)]"
+                      : "border-hairline bg-canvas text-ink-muted hover:border-primary/40")
                   }
                 >
                   <input
@@ -122,7 +122,7 @@ export function DecisionForm({
                 id="department"
                 name="department"
                 defaultValue=""
-                className="w-full border-b border-ink-subtle bg-surface-1 px-4 py-[11px] text-body text-ink outline-none focus:border-b-2 focus:border-primary"
+                className="w-full rounded-xl border border-hairline bg-canvas px-4 py-3 text-body text-ink shadow-[inset_0_1px_2px_rgb(20_32_51/0.03)] outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
               >
                 <option value="" disabled>
                   Select a department
@@ -147,7 +147,7 @@ export function DecisionForm({
             id="reason"
             name="reason"
             rows={3}
-            className="w-full border-b border-ink-subtle bg-surface-1 px-4 py-[11px] text-body text-ink outline-none focus:border-b-2 focus:border-primary"
+            className="w-full rounded-xl border border-hairline bg-canvas px-4 py-3 text-body text-ink shadow-[inset_0_1px_2px_rgb(20_32_51/0.03)] outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
             placeholder="The photo was too blurry to read the registration number."
           />
         </Field>

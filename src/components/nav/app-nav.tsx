@@ -28,7 +28,7 @@ const RAIL_COOKIE = "nav_rail";
 /** Rail row: 48px tall, 2px left rule that only the active row colours in. */
 function railRowClass(active: boolean, expanded: boolean): string {
   return [
-    "flex h-11 items-center border-l-2 no-underline transition-all duration-200",
+    "flex h-12 items-center border-l-2 no-underline transition-all duration-200",
     "hover:bg-surface-2 hover:no-underline",
     expanded ? "mx-2 gap-3 rounded-lg pl-3 pr-4" : "mx-1 justify-center rounded-lg px-0",
     active
@@ -93,7 +93,7 @@ export function AppNav({
   children,
 }: {
   viewer: NavViewer;
-  identity: { email: string | null; initials: string };
+  identity: { email: string | null; displayName: string; initials: string };
   railExpanded: boolean;
   children: ReactNode;
 }) {
@@ -168,9 +168,9 @@ export function AppNav({
           </span>
         </div>
 
-        <div className="flex items-center gap-4 pr-4">
+        <div className="flex items-center gap-3 pr-4">
           <span className="hidden truncate text-body-sm text-ink-muted sm:inline">
-            {identity.email}
+            {identity.displayName}
           </span>
           <span
             aria-hidden="true"
@@ -248,7 +248,7 @@ export function AppNav({
             expanded ? "w-64" : "w-12"
           }`}
         >
-          <ul className="flex flex-col">
+          <ul className="flex flex-col pt-3">
             {section.items.map((item) => (
               <li key={item.href}>
                 <RailLink
@@ -263,12 +263,14 @@ export function AppNav({
           <div className="flex-1" />
 
           {others.length > 0 ? (
-            <ul className="flex flex-col border-t border-hairline">
+            <ul className="flex flex-col border-t border-hairline pt-4">
               {expanded ? (
-                <li className="px-4 pt-3 pb-1 text-caption text-ink-subtle">
+                <li className="px-4 pb-2 text-caption text-ink-subtle">
                   Your other access
                 </li>
-              ) : null}
+              ) : (
+                <li className="px-2 pb-2" aria-hidden="true" />
+              )}
               {others.map((other) => (
                 <li key={other.key}>
                   <Link
@@ -288,7 +290,7 @@ export function AppNav({
             </ul>
           ) : null}
 
-          <div className="border-t border-hairline">
+          <div className="border-t border-hairline pt-3">
             <SignOutRow expanded={expanded} />
           </div>
 
@@ -297,7 +299,7 @@ export function AppNav({
             onClick={toggleRail}
             aria-expanded={expanded}
             title={expanded ? undefined : "Expand"}
-            className={`cursor-pointer border-t border-hairline ${railRowClass(false, expanded)}`}
+            className={`cursor-pointer mt-5 border-t border-hairline ${railRowClass(false, expanded)}`}
           >
             <NavIcon name={expanded ? "chevronLeft" : "chevronRight"} />
             {expanded ? <span className="text-body-sm">Collapse</span> : null}

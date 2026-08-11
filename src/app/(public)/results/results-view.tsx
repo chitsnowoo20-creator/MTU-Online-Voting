@@ -72,55 +72,34 @@ export async function ElectionResults({ electionId }: { electionId: string }) {
         const winners = sorted.filter((row) => labels.has(finalRank(row)));
         const others = sorted.filter((row) => !labels.has(finalRank(row)));
         const totalVotes = sorted.reduce((sum, row) => sum + row.vote_count, 0) || 1;
-        const topWinner = winners.find((row) => finalRank(row) === 1) ?? winners[0];
 
         return (
           <section
             key={categoryId}
             className="overflow-hidden rounded-[28px] border border-hairline bg-canvas shadow-card"
           >
-            <div className="flex items-center justify-between gap-4 bg-[image:var(--gradient-mesh)] bg-inverse-canvas px-5 py-4 sm:px-7 sm:py-5">
-              <h2 className="break-words text-headline text-inverse-ink">{all[0]?.category_name}</h2>
-              {topWinner ? (
-                <span className="hidden rounded-full bg-white/10 px-3 py-1.5 text-caption font-semibold text-inverse-ink-muted sm:inline-flex">
+            <div className="flex items-center justify-between gap-4 bg-gradient-to-r from-primary/12 via-primary/6 to-canvas px-5 py-5 sm:px-7 sm:py-6">
+              <div>
+                <p className="text-caption font-bold uppercase tracking-[0.14em] text-brand-ink">Official winners</p>
+                <h2 className="mt-1 break-words text-headline text-ink">{all[0]?.category_name}</h2>
+              </div>
+              {winners.length > 0 ? (
+                <span className="hidden rounded-full border border-primary/20 bg-canvas/80 px-3 py-1.5 text-caption font-semibold text-ink-muted shadow-soft sm:inline-flex">
                   {totalVotes} total vote{totalVotes === 1 ? "" : "s"}
                 </span>
               ) : null}
             </div>
 
             {/* Winners — hero treatment */}
-            <div className="grid gap-px bg-hairline sm:grid-cols-2 lg:grid-cols-3">
+            <div className="divide-y divide-hairline">
               {winners.map((row) => {
-                const isTopRank = finalRank(row) === 1;
                 const pct = Math.round((row.vote_count / totalVotes) * 100);
                 return (
                   <div
                     key={row.candidate_id}
-                    className={
-                      "card-hover relative bg-canvas p-5 sm:p-6 " +
-                      (isTopRank ? "bg-[image:linear-gradient(180deg,#fff9ec,white_35%)]" : "")
-                    }
+                    className="group grid gap-4 bg-canvas p-5 transition-colors hover:bg-primary/5 sm:grid-cols-[128px_minmax(0,1fr)_minmax(120px,0.55fr)] sm:items-center sm:gap-6 sm:p-6"
                   >
-                    {isTopRank ? (
-                      <span className="absolute right-5 top-5 text-2xl">👑</span>
-                    ) : null}
-                    <span
-                      className={
-                        "inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-caption font-bold " +
-                        (isTopRank
-                          ? "bg-[image:var(--gradient-gold)] text-accent-ink"
-                          : "bg-primary/10 text-brand-ink")
-                      }
-                    >
-                      {labels.get(finalRank(row))}
-                    </span>
-
-                    <div
-                      className={
-                        "relative my-4 aspect-[4/5] w-full overflow-hidden rounded-2xl bg-surface-1 " +
-                        (isTopRank ? "ring-4 ring-[--color-accent] ring-offset-2" : "")
-                      }
-                    >
+                    <div className="relative order-first aspect-square w-full max-w-[180px] overflow-hidden rounded-2xl bg-surface-1 shadow-soft ring-1 ring-hairline transition-all duration-300 group-hover:shadow-lift group-hover:ring-primary/30 sm:row-span-2 sm:max-w-none">
                       <Image
                         src={
                           supabase.storage.from("candidate-photos").getPublicUrl(row.photo_path).data
@@ -129,16 +108,23 @@ export async function ElectionResults({ electionId }: { electionId: string }) {
                         alt=""
                         fill
                         sizes="(max-width: 640px) 100vw, 280px"
-                        className="object-cover"
+                        className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                       />
+                      {/* Soft gradient overlay for depth */}
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/10 via-transparent to-transparent" aria-hidden="true" />
                     </div>
 
-                    <p className="text-subhead text-ink">{row.display_name}</p>
-                    {row.tagline ? (
-                      <p className="mt-0.5 text-caption text-ink-muted">{row.tagline}</p>
-                    ) : null}
+                    <div className="sm:col-start-2">
+                      <span className="inline-flex w-fit items-center gap-1.5 rounded-full bg-primary/10 px-3 py-1.5 text-caption font-bold text-brand-ink">
+                        {labels.get(finalRank(row))}
+                      </span>
+                      <p className="mt-3 text-subhead text-ink">{row.display_name}</p>
+                      {row.tagline ? (
+                        <p className="mt-0.5 text-caption text-ink-muted">{row.tagline}</p>
+                      ) : null}
+                    </div>
 
-                    <div className="mt-4">
+                    <div className="sm:col-start-3 sm:row-span-2 sm:self-center">
                       <div className="flex items-baseline justify-between text-body-sm">
                         <span className="font-bold text-ink">{pct}%</span>
                         <span className="text-ink-subtle">
@@ -147,10 +133,7 @@ export async function ElectionResults({ electionId }: { electionId: string }) {
                       </div>
                       <div className="mt-1.5 h-2 overflow-hidden rounded-full bg-surface-2">
                         <div
-                          className={
-                            "h-full rounded-full " +
-                            (isTopRank ? "bg-[image:var(--gradient-gold)]" : "bg-[image:var(--gradient-brand)]")
-                          }
+                          className="h-full rounded-full bg-[image:var(--gradient-brand)]"
                           style={{ width: `${pct}%` }}
                         />
                       </div>

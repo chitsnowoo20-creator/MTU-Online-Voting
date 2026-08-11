@@ -23,15 +23,28 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function Notice({
   title,
+  eyebrow,
+  symbol,
   children,
 }: {
   title: string;
+  eyebrow: string;
+  symbol: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="surface-panel px-6 py-10 text-center">
-      <h1 className="text-card-title">{title}</h1>
-      <div className="mt-2 text-body text-ink-muted">{children}</div>
+    <div className="surface-panel relative overflow-hidden px-6 py-10 text-center sm:px-10 sm:py-14">
+      <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-primary/15 blur-3xl" />
+      <div className="relative mx-auto max-w-[580px]">
+        <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-2xl text-brand-ink shadow-soft">
+          {symbol}
+        </span>
+        <p className="mt-5 text-caption font-bold uppercase tracking-[0.14em] text-brand-ink">
+          {eyebrow}
+        </p>
+        <h1 className="mt-1 text-headline">{title}</h1>
+        <div className="mt-3 text-body text-ink-muted">{children}</div>
+      </div>
     </div>
   );
 }
@@ -51,7 +64,11 @@ export default async function VotePage() {
   if (!election) {
     return (
       <Shell>
-        <Notice title="No election is open">
+        <Notice
+          title="No ballot is available"
+          eyebrow="Voting centre"
+          symbol="○"
+        >
           Nothing is accepting votes at the moment. Check back when voting
           opens — you&rsquo;ll be able to vote from here.
         </Notice>
@@ -66,7 +83,7 @@ export default async function VotePage() {
   if (phase === "SCHEDULED") {
     return (
       <Shell>
-        <Notice title={election.name}>
+        <Notice title={election.name} eyebrow="Ballot scheduled" symbol="◷">
           Voting opens {formatCountdown(election.opens_at)}, at{" "}
           {formatMoment(election.opens_at)}.
         </Notice>
@@ -96,16 +113,25 @@ export default async function VotePage() {
 
   return (
     <Shell>
-      <div className="mb-6 flex flex-wrap items-baseline justify-between gap-3">
+      <div className="mb-6 overflow-hidden rounded-3xl border border-hairline bg-canvas shadow-soft">
+        <div className="flex flex-wrap items-baseline justify-between gap-3 px-5 py-5 sm:px-7">
         <div>
+          <p className="eyebrow-label">Voting is live</p>
           <h1 className="text-headline">{election.name}</h1>
-          <p className="text-body-sm text-ink-muted">
+          <p className="mt-1 text-body-sm text-ink-muted">
             One vote per category · closes {formatCountdown(election.closes_at)}
           </p>
         </div>
         <Tag tone={remaining.length === 0 ? "done" : "pending"}>
           {groups.length - remaining.length} of {groups.length} cast
         </Tag>
+        </div>
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline bg-primary/6 px-5 py-3 sm:px-7">
+          <p className="text-body-sm font-semibold text-brand-ink">Time remaining</p>
+          <p className="rounded-full border border-primary/20 bg-canvas px-3 py-1 text-body-sm font-bold text-ink shadow-soft">
+            {formatCountdown(election.closes_at)}
+          </p>
+        </div>
       </div>
 
       {remaining.length === 0 ? (

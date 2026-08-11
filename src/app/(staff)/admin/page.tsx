@@ -32,16 +32,20 @@ export default async function AdminPage() {
 
   return (
     <StaffPage title="Admin" subtitle="Roles, departments and the audit trail">
-      <ul className="grid gap-px bg-hairline sm:grid-cols-3">
-        {SECTIONS.map((section) => (
-          <li key={section.href} className="surface-card">
+      <ul className="grid gap-4 sm:grid-cols-3">
+        {SECTIONS.map((section, index) => (
+          <li key={section.href} className="surface-card card-hover overflow-hidden rounded-2xl border border-hairline shadow-soft">
             <Link
               href={section.href}
-              className="flex h-full flex-col gap-2 p-6 no-underline hover:bg-surface-1 hover:no-underline"
+              className="group flex h-full min-h-56 flex-col p-6 no-underline transition-colors hover:bg-primary/5 hover:no-underline"
             >
-              <span className="text-card-title text-ink">{section.title}</span>
-              <span className="text-body-sm text-ink-muted">
-                {section.detail}
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-body-sm font-bold text-brand-ink">
+                0{index + 1}
+              </span>
+              <span className="mt-6 text-card-title text-ink">{section.title}</span>
+              <span className="mt-2 text-body-sm text-ink-muted">{section.detail}</span>
+              <span className="mt-auto pt-6 text-body-sm font-semibold text-brand-ink transition-transform group-hover:translate-x-1">
+                Open workspace →
               </span>
             </Link>
           </li>

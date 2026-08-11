@@ -38,10 +38,18 @@ export default async function ElectionsPage() {
             {error.message}
           </p>
         ) : rows.length === 0 ? (
-          <div className="px-6 py-12 text-center">
-            <p className="text-body text-ink-muted">
+          <div className="relative overflow-hidden px-6 py-14 text-center">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-48 w-48 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
+            <div className="relative mx-auto max-w-sm">
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-2xl text-brand-ink shadow-soft">+</span>
+              <p className="mt-5 text-card-title">Create your first election</p>
+              <p className="mt-2 text-body text-ink-muted">
               No elections yet. Create one to start building a ballot.
-            </p>
+              </p>
+              <ButtonLink href="/elections/new" className="mt-6 !min-h-11 !px-5">
+                New election
+              </ButtonLink>
+            </div>
           </div>
         ) : (
           <>
