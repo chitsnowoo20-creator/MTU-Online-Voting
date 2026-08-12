@@ -115,16 +115,14 @@ export default async function Home() {
       <header className="sticky top-0 z-30 border-b border-hairline bg-canvas/80 backdrop-blur-lg">
         <div className="mx-auto flex h-16 max-w-[1120px] items-center justify-between px-4 sm:px-6">
           <div className="flex min-w-0 items-center gap-4 sm:gap-8">
-            <Link href="/" className="flex items-center gap-2.5 text-ink no-underline hover:no-underline">
-              <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-xl bg-white shadow-soft ring-1 ring-hairline">
-                <Image
-                  src="/MTU.png"
-                  alt="MTU logo"
-                  width={36}
-                  height={36}
-                  className="h-full w-full object-contain"
-                />
-              </span>
+            <Link href="/" className="flex items-center gap-3 text-ink no-underline hover:no-underline">
+              <Image
+                src="/MTU_Logo.png"
+                alt="MTU logo"
+                width={44}
+                height={44}
+                className="h-11 w-11 shrink-0 object-contain"
+              />
               <span className="truncate text-body-sm font-bold tracking-tight">MTU Elections</span>
             </Link>
             <nav className="hidden items-center gap-2 sm:flex">
@@ -162,7 +160,7 @@ export default async function Home() {
           <div className="pointer-events-none absolute bottom-8 right-[18%] h-28 w-28 rounded-full bg-campus-red/10 blur-3xl" />
 
           <div className="relative mx-auto max-w-[1120px] px-4 py-16 sm:px-6 sm:py-28">
-            <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16">
+            <div className="grid items-center gap-12 lg:grid-cols-[1fr_1.05fr] lg:gap-14">
               <div>
                 <div className="animate-fade-up">
                   <Tag tone={tone}>{status}</Tag>
@@ -202,10 +200,11 @@ export default async function Home() {
                       {
                         label: featured.state === "OPEN" ? "until voting closes" : "voting closed",
                         value: featured.closes_at ? formatCountdown(featured.closes_at).replace(/^in /, "") : "—",
+                        valueClassName: "text-[1.55rem] font-bold leading-tight whitespace-nowrap",
                       },
                     ].map((stat) => (
-                      <div key={stat.label} className="glass-panel card-hover rounded-2xl p-5 shadow-soft sm:p-6">
-                        <dd className="text-display-md text-ink">{stat.value}</dd>
+                      <div key={stat.label} className="glass-panel card-hover min-w-0 rounded-2xl p-5 shadow-soft sm:p-6">
+                        <dd className={`text-ink ${stat.valueClassName ?? "text-display-md"}`}>{stat.value}</dd>
                         <dt className="mt-1 text-body-sm text-ink-muted">{stat.label}</dt>
                       </div>
                     ))}
@@ -213,44 +212,29 @@ export default async function Home() {
                 ) : null}
               </div>
 
-              {/* Hero image — man-tu.jpg in a modern card */}
+              {/* Hero image — MTU_Card.jpg in a clean modern frame */}
               <div className="animate-fade-up relative hidden lg:block" style={{ animationDelay: "0.2s" }}>
-                <div className="relative">
-                  {/* Decorative backdrop */}
-                  <div className="absolute -inset-4 rounded-[36px] bg-[image:var(--gradient-brand)] opacity-15 blur-2xl" aria-hidden="true" />
-                  <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-campus-yellow/20 blur-xl" aria-hidden="true" />
-                  <div className="absolute -bottom-8 -left-8 h-28 w-28 rounded-full bg-campus-red/10 blur-xl" aria-hidden="true" />
+                <div className="relative mx-auto w-full pb-9">
+                  {/* Soft brand glow accent (single layer, keeps image vivid) */}
+                  <div className="absolute -inset-3 rounded-[40px] bg-[image:var(--gradient-brand)] opacity-15 blur-2xl" aria-hidden="true" />
 
-                  {/* Main image card */}
-                  <div className="relative overflow-hidden rounded-[28px] border border-white/60 bg-white/70 shadow-lift backdrop-blur-xl">
-                    <div className="relative aspect-[4/5] w-full overflow-hidden bg-[image:var(--gradient-mesh)]">
+                  {/* Main image card — rectangular, clean, modern */}
+                  <div className="relative overflow-hidden rounded-[28px] border border-white/80 bg-white/85 p-2 shadow-[0_24px_50px_-22px_rgb(20_32_51/0.4),0_8px_18px_-12px_rgb(35_120_167/0.25)] backdrop-blur-xl transition-transform duration-500 hover:-translate-y-1">
+                    <div className="relative aspect-[4/3] w-full overflow-hidden rounded-[20px] bg-[image:var(--gradient-mesh)]">
                       <Image
-                        src="/man-tu.jpg"
+                        src="/MTU_Card.jpg"
                         alt="Myanmar Technological University campus"
                         fill
-                        sizes="(max-width: 1024px) 0vw, 480px"
+                        sizes="(max-width: 1024px) 0vw, 520px"
                         className="object-cover transition-transform duration-700 hover:scale-[1.025]"
                         priority
                       />
-                      {/* Soft gradient overlay for depth */}
-                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/15 via-transparent to-transparent" aria-hidden="true" />
-                    </div>
-
-                    {/* Floating stat chip */}
-                    <div className="hidden">
-                      <p className="text-caption font-bold text-brand-ink">MTU</p>
-                      <p className="text-caption text-ink-muted">Campus Elections</p>
-                    </div>
-
-                    {/* Floating badge */}
-                    <div className="hidden">
-                      <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[image:var(--gradient-gold)] text-sm">👑</span>
-                      <div>
-                        <p className="text-caption font-bold text-ink">King & Queen</p>
-                        <p className="text-caption text-ink-muted">Vote now</p>
-                      </div>
+                      {/* Subtle gradient overlay for depth only */}
+                      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/8 via-transparent to-transparent" aria-hidden="true" />
                     </div>
                   </div>
+
+                  {/* Bottom info bar */}
                   <div className="relative mx-6 -mt-8 flex items-center justify-between gap-4 rounded-2xl border border-white/80 bg-canvas/95 px-5 py-4 shadow-card backdrop-blur">
                     <div>
                       <p className="text-caption font-bold uppercase tracking-[0.14em] text-brand-ink">
@@ -341,15 +325,13 @@ export default async function Home() {
         <div className="mx-auto grid max-w-[1120px] gap-10 px-4 py-12 sm:grid-cols-2 sm:px-6 sm:py-16">
           <div className="border-b border-white/10 pb-8 sm:border-b-0 sm:pb-0">
             <div className="flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg bg-white/10 ring-1 ring-white/20">
-                <Image
-                  src="/MTU.png"
-                  alt="MTU logo"
-                  width={32}
-                  height={32}
-                  className="h-full w-full object-contain"
-                />
-              </span>
+              <Image
+                src="/MTU_Logo.png"
+                alt="MTU logo"
+                width={36}
+                height={36}
+                className="h-9 w-9 shrink-0 object-contain"
+              />
               <span className="text-body-sm font-bold text-inverse-ink">MTU Elections</span>
             </div>
             <p className="mt-3 max-w-[420px] text-body-sm leading-relaxed">
