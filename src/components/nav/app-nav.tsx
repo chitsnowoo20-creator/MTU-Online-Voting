@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState, type ReactNode } from "react";
+import { useFormStatus } from "react-dom";
 
 import { NavIcon } from "./icons";
 import { logout } from "@/app/(public)/auth-actions";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import {
   activeHref,
   activeSection,
@@ -124,6 +127,53 @@ function RailLink({
   );
 }
 
+/** Submit button for the confirm dialog, so it can show its own pending state. */
+function ConfirmSignOut() {
+  const { pending } = useFormStatus();
+  return (
+    <Button type="submit" variant="secondary" disabled={pending}>
+      {pending ? "Signing out…" : "Sign out"}
+    </Button>
+  );
+}
+
+/**
+ * Confirmation for signing out.
+ *
+ * Sign out lives in permanent chrome, one click from every screen, and losing a
+ * session mid-ballot is annoying to recover from — so the row asks first rather
+ * than acting on a stray click.
+ */
+function SignOutDialog({
+  onCancel,
+  onDone,
+}: {
+  onCancel: () => void;
+  onDone?: () => void;
+}) {
+  return (
+    <ConfirmDialog
+      title="Sign out?"
+      onCancel={onCancel}
+      width="380px"
+      footer={
+        <>
+          <Button type="button" variant="ghost" onClick={onCancel} autoFocus>
+            Cancel
+          </Button>
+          <form action={logout} onSubmit={onDone}>
+            <ConfirmSignOut />
+          </form>
+        </>
+      }
+    >
+      <p className="text-body-sm text-ink-muted">
+        You&rsquo;ll need to sign in again to vote or check your status.
+      </p>
+    </ConfirmDialog>
+  );
+}
+
 function SignOutRow({
   expanded,
   onDone,
@@ -131,27 +181,34 @@ function SignOutRow({
   expanded: boolean;
   onDone?: () => void;
 }) {
+  const [confirming, setConfirming] = useState(false);
+
   return (
-    // `flex flex-col` so the button stretches to the form's width the same way
-    // the `<li>` rows do — `width: auto` on a <button> is fit-content in some
-    // engines, which would leave the icon off-centre again.
-    <form action={logout} onSubmit={onDone} className="flex flex-col">
+    <>
       {/*
-        * No `w-full`: railRowClass already carries `mx-2`, and the two together
-        * sized the row to the rail's full width *plus* margins — pushing the
-        * icon 8px right of every link above it when collapsed, and the row 8px
-        * past the rail's edge when expanded. Left to `auto`, this button fills
-        * the form exactly like the `<a>` rows do.
+        * `flex flex-col` so the button stretches to the row width the same way
+        * the `<li>` links do — `width: auto` on a <button> is fit-content in
+        * some engines, which knocks the icon out of line when collapsed. The
+        * <form> used to provide this; the form now lives in the dialog.
+        *
+        * `type="button"`: this opens the dialog, it no longer submits.
         */}
-      <button
-        type="submit"
-        title={expanded ? undefined : "Sign out"}
-        className={`cursor-pointer ${railRowClass(false, expanded)}`}
-      >
-        <NavIcon name="signOut" />
-        <RailText expanded={expanded}>Sign out</RailText>
-      </button>
-    </form>
+      <div className="flex flex-col">
+        <button
+          type="button"
+          title={expanded ? undefined : "Sign out"}
+          onClick={() => setConfirming(true)}
+          className={`cursor-pointer ${railRowClass(false, expanded)}`}
+        >
+          <NavIcon name="signOut" />
+          <RailText expanded={expanded}>Sign out</RailText>
+        </button>
+      </div>
+
+      {confirming ? (
+        <SignOutDialog onCancel={() => setConfirming(false)} onDone={onDone} />
+      ) : null}
+    </>
   );
 }
 
