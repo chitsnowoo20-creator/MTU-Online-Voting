@@ -4,6 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { setRole } from "./actions";
+import { Button } from "@/components/ui/button";
+import { ConfirmDialog } from "@/components/ui/confirm-dialog";
 import { DataTable } from "@/components/ui/data-table";
 import { FormError } from "@/components/ui/tile";
 import type { Database } from "@/lib/db/database.types";
@@ -23,10 +25,113 @@ export type DirectoryRow = {
   roles: AppRole[];
 };
 
+/**
+ * Typed confirmation for admin grants and revokes.
+ *
+ * Only ADMIN goes through this. Reviewer and Officer are reversible in a click
+ * and stay instant — gating everything would just train people to type past the
+ * dialog without reading it.
+ *
+ * The phrase is the target's own email rather than a fixed word: "CONFIRM"
+ * becomes muscle memory after the second time, whereas typing the address
+ * forces you to look at *who* you are about to change.
+ *
+ * This is UX, not a security boundary. RLS still decides who may write to
+ * `user_roles`, and the audit trigger still records it either way.
+ */
+function AdminRoleDialog({
+  user,
+  grant,
+  onCancel,
+  onConfirm,
+}: {
+  user: DirectoryRow;
+  grant: boolean;
+  onCancel: () => void;
+  onConfirm: () => void;
+}) {
+  const [typed, setTyped] = useState("");
+  const matches = typed.trim().toLowerCase() === user.email.toLowerCase();
+
+  return (
+    <ConfirmDialog
+      title={grant ? "Grant admin access?" : "Remove admin access?"}
+      onCancel={onCancel}
+      footer={
+        <>
+          <Button type="button" variant="ghost" onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button
+            type="button"
+            variant={grant ? "primary" : "danger"}
+            disabled={!matches}
+            onClick={onConfirm}
+          >
+            {grant ? "Grant admin" : "Remove admin"}
+          </Button>
+        </>
+      }
+    >
+      <p className="text-body-sm text-ink-muted">
+        {grant ? (
+          <>
+            <span className="text-ink">{user.full_name}</span> will be able to
+            grant and revoke roles for anyone — including themselves — manage
+            departments, and read the full audit log.
+          </>
+        ) : (
+          <>
+            <span className="text-ink">{user.full_name}</span> will lose role
+            management, departments and the audit log. Any other role they hold
+            is unaffected.
+          </>
+        )}
+      </p>
+
+      <label className="mt-5 block">
+        {/* `break-words`: an email is one unbreakable token, so a long address
+            would run past the dialog on a narrow screen. */}
+        <span className="block break-words text-caption text-ink-muted">
+          Type <span className="text-ink">{user.email}</span> to continue
+        </span>
+        <input
+          value={typed}
+          onChange={(event) => setTyped(event.target.value)}
+          autoFocus
+          autoComplete="off"
+          spellCheck={false}
+          aria-label={`Type ${user.email} to confirm`}
+          className="mt-1.5 w-full rounded-xl border border-hairline bg-canvas px-4 py-3 text-body text-ink outline-none transition-colors focus:border-primary"
+        />
+      </label>
+    </ConfirmDialog>
+  );
+}
+
 export function RolesTable({ users }: { users: DirectoryRow[] }) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [pending, startTransition] = useTransition();
+
+  const [adminChange, setAdminChange] = useState<{
+    user: DirectoryRow;
+    grant: boolean;
+  } | null>(null);
+
+  /**
+   * ADMIN is the only role that opens a dialog. The checkbox is controlled by
+   * server data and no local state changes here, so it snaps back on its own
+   * while the dialog is open and only moves once the write lands.
+   */
+  function request(user: DirectoryRow, role: AppRole, grant: boolean) {
+    if (role === "ADMIN") {
+      setError(null);
+      setAdminChange({ user, grant });
+      return;
+    }
+    toggle(user.profile_id, role, grant);
+  }
 
   function toggle(profileId: string, role: AppRole, grant: boolean) {
     setError(null);
@@ -72,7 +177,7 @@ export function RolesTable({ users }: { users: DirectoryRow[] }) {
                             disabled={pending}
                             aria-label={`${label} — ${user.full_name}`}
                             onChange={(event) =>
-                              toggle(user.profile_id, role, event.target.checked)
+                              request(user, role, event.target.checked)
                             }
                             className="size-4 cursor-pointer accent-[var(--color-primary)] disabled:cursor-wait"
                           />
@@ -120,11 +225,7 @@ export function RolesTable({ users }: { users: DirectoryRow[] }) {
                                 disabled={pending}
                                 aria-label={`${label} — ${user.full_name}`}
                                 onChange={(event) =>
-                                  toggle(
-                                    user.profile_id,
-                                    role,
-                                    event.target.checked,
-                                  )
+                                  request(user, role, event.target.checked)
                                 }
                                 className="size-4 cursor-pointer accent-[var(--color-primary)] disabled:cursor-wait"
                               />
@@ -145,6 +246,19 @@ export function RolesTable({ users }: { users: DirectoryRow[] }) {
         Every grant and revoke is written to the audit log with your name
         against it.
       </p>
+
+      {adminChange ? (
+        <AdminRoleDialog
+          key={`${adminChange.user.profile_id}-${adminChange.grant}`}
+          user={adminChange.user}
+          grant={adminChange.grant}
+          onCancel={() => setAdminChange(null)}
+          onConfirm={() => {
+            toggle(adminChange.user.profile_id, "ADMIN", adminChange.grant);
+            setAdminChange(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 }
