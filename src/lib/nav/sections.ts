@@ -64,19 +64,19 @@ function voterSection(viewer: NavViewer): NavSection {
     icon: "results",
   });
 
-  return { key: "voter", name: "Voter", icon: "home", items };
+  return { key: "voter", name: "Voter", icon: "ballot", items };
 }
 
 const REVIEWER_SECTION: NavSection = {
   key: "reviewer",
   name: "Reviewer",
-  icon: "queue",
+  icon: "idCard",
   items: [
     {
       href: "/review",
       label: "Verification queue",
       short: "Queue",
-      icon: "queue",
+      icon: "idCard",
     },
     { href: "/account", label: "My status", short: "Status", icon: "status" },
   ],
@@ -87,7 +87,7 @@ const ADMIN_SECTION: NavSection = {
   name: "Admin",
   icon: "state",
   items: [
-    { href: "/admin", label: "Overview", short: "Admin", icon: "state" },
+    { href: "/admin", label: "Overview", short: "Admin", icon: "results" },
     { href: "/admin/roles", label: "Roles", short: "Roles", icon: "people" },
     {
       href: "/admin/departments",

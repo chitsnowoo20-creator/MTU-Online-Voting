@@ -82,7 +82,6 @@ export default async function ElectionPage({
           closesAt={election.closes_at}
         />
       }
-      back={{ href: "/elections", label: "Elections" }}
       actions={
         isDraft ? (
           <ButtonLink href={`/elections/${id}/edit`} variant="tertiary">
@@ -93,7 +92,7 @@ export default async function ElectionPage({
     >
       <div className="grid gap-6 md:grid-cols-2">
         <div className="flex flex-col gap-6">
-          <div className="surface-card">
+          <div className="surface-card overflow-hidden">
             <div className="border-b border-hairline px-6 py-4">
               <h2 className="text-card-title">Schedule</h2>
             </div>
@@ -113,7 +112,7 @@ export default async function ElectionPage({
             </dl>
           </div>
 
-          <div className="surface-card">
+          <div className="surface-card overflow-hidden">
             <div className="flex items-center justify-between gap-4 border-b border-hairline px-6 py-4">
               <h2 className="text-card-title">Ballot</h2>
               {isDraft ? (

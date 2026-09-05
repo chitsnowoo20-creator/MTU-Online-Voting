@@ -137,7 +137,7 @@ export function CandidateManager({
         <form
           ref={formRef}
           action={submit}
-          className="flex flex-col gap-5 border border-hairline bg-canvas p-6"
+          className="surface-card flex flex-col gap-5 p-6"
         >
           <h2 className="text-card-title">Add candidate card</h2>
           <input type="hidden" name="categoryId" value={activeId} />
@@ -227,45 +227,65 @@ export function CandidateManager({
           </p>
 
           {active && active.candidates.length > 0 ? (
-            <ul className="grid gap-px bg-hairline sm:grid-cols-2 lg:grid-cols-3">
+            /*
+             * A real card grid. This was `gap-px bg-hairline` — the seam trick
+             * where cells butt together and the background shows through as
+             * 1px rules. That only works with square, borderless cells; once
+             * `surface-card` gained a radius the hairline showed as grey blocks
+             * between the cards and across any empty column.
+             */
+            <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {active.candidates.map((candidate) => (
-                <li key={candidate.id} className="surface-card p-4">
-                  <div className="relative mb-3 aspect-[4/5] w-full bg-surface-1">
+                <li
+                  key={candidate.id}
+                  className="surface-card card-hover group flex flex-col overflow-hidden"
+                >
+                  {/* Photo bleeds to the card edges and is clipped by its
+                      radius, rather than sitting square inside padding. */}
+                  <div className="relative aspect-square w-full overflow-hidden bg-surface-1">
                     <Image
                       src={candidate.photo_url}
                       alt={candidate.display_name}
                       fill
-                      sizes="(max-width: 640px) 100vw, 240px"
-                      className="object-cover"
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
+                      className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                     />
                   </div>
-                  <p className="text-body-sm text-ink">
-                    {candidate.display_name}
-                  </p>
-                  {candidate.tagline ? (
-                    <p className="text-caption text-ink-muted">
-                      {candidate.tagline}
+
+                  <div className="flex flex-1 flex-col gap-0.5 p-4">
+                    <p className="truncate text-body-sm font-semibold text-ink">
+                      {candidate.display_name}
                     </p>
-                  ) : null}
-                  <form action={removeAction} className="mt-2">
-                    <input
-                      type="hidden"
-                      name="candidateId"
-                      value={candidate.id}
-                    />
-                    <input type="hidden" name="electionId" value={electionId} />
-                    <input
-                      type="hidden"
-                      name="photoPath"
-                      value={candidate.photo_path}
-                    />
-                    <button
-                      type="submit"
-                      className="cursor-pointer text-caption text-error-ink"
-                    >
-                      Remove
-                    </button>
-                  </form>
+                    {candidate.tagline ? (
+                      <p className="line-clamp-2 text-caption text-ink-muted">
+                        {candidate.tagline}
+                      </p>
+                    ) : null}
+
+                    <form action={removeAction} className="mt-3 flex">
+                      <input
+                        type="hidden"
+                        name="candidateId"
+                        value={candidate.id}
+                      />
+                      <input
+                        type="hidden"
+                        name="electionId"
+                        value={electionId}
+                      />
+                      <input
+                        type="hidden"
+                        name="photoPath"
+                        value={candidate.photo_path}
+                      />
+                      <button
+                        type="submit"
+                        className="-ml-2.5 inline-flex min-h-11 cursor-pointer items-center rounded-lg px-2.5 text-caption text-error-ink transition-colors hover:bg-error-bg lg:min-h-8"
+                      >
+                        Remove
+                      </button>
+                    </form>
+                  </div>
                 </li>
               ))}
             </ul>

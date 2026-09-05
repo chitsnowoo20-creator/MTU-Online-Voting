@@ -41,8 +41,7 @@ export default async function RolesPage({
   return (
     <StaffPage
       title="Roles"
-      subtitle="Admin"
-      back={{ href: "/admin", label: "Admin" }}
+      subtitle="Grant and revoke reviewer, officer and admin access. Voting rights are not granted here — every approved user can already vote."
     >
       <form className="mb-6 flex flex-wrap items-end gap-3">
         <div className="min-w-[260px] flex-1">

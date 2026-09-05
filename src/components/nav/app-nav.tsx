@@ -17,7 +17,7 @@ import {
 /**
  * The signed-in chrome, from design reference v2 (N1–N3).
  *
- * One header on every width. Below it, a collapsible 256px/48px side rail on
+ * One header on every width. Below it, a collapsible 256px/56px side rail on
  * desktop and a floating bottom bar on mobile — the bar carries four targets,
  * and anything past four lives behind the header menu. The role never changes
  * the chrome, only the item set.
@@ -25,16 +25,79 @@ import {
 
 const RAIL_COOKIE = "nav_rail";
 
-/** Rail row: 48px tall, 2px left rule that only the active row colours in. */
+/**
+ * Rail row: a 40px pill.
+ *
+ * The active state is the filled pill and nothing else. It used to carry a
+ * `border-l-2` *and* an inset box-shadow, which drew two left rules on a
+ * rounded pill and read as a rendering artefact rather than an indicator.
+ */
 function railRowClass(active: boolean, expanded: boolean): string {
   return [
-    "flex h-12 items-center border-l-2 no-underline transition-all duration-200",
-    "hover:bg-surface-2 hover:no-underline",
-    expanded ? "mx-2 gap-3 rounded-lg pl-3 pr-4" : "mx-1 justify-center rounded-lg px-0",
+    // h-11 (44px) below lg, where this styles the touch overflow menu; the
+    // desktop rail is mouse-driven and keeps the tighter 40px row.
+    "group relative flex h-11 items-center rounded-lg no-underline lg:h-10",
+    "transition-colors duration-150 hover:no-underline",
+    expanded ? "mx-2 gap-3 px-3" : "mx-2 justify-center gap-0 px-0",
     active
-      ? "border-primary bg-primary/10 text-brand-ink shadow-[inset_3px_0_0_0_var(--color-primary)]"
-      : "border-transparent text-ink-muted hover:text-ink",
+      ? "bg-primary/10 text-brand-ink"
+      : "text-ink-muted hover:bg-surface-2 hover:text-ink",
   ].join(" ");
+}
+
+/**
+ * A row's label.
+ *
+ * Kept mounted at every width and collapsed to `max-w-0` instead of being
+ * conditionally rendered: unmounted text popped in at full opacity the moment
+ * the toggle was clicked, while the rail itself took 200ms to widen. Animating
+ * width and opacity on the same 200ms curve lets the text arrive with the space
+ * that holds it. `overflow-hidden` is what keeps a zero-width label from
+ * spilling over the icon.
+ */
+function RailText({
+  expanded,
+  className = "",
+  children,
+}: {
+  expanded: boolean;
+  className?: string;
+  children: ReactNode;
+}) {
+  return (
+    <span
+      aria-hidden={!expanded}
+      className={`truncate text-body-sm transition-all duration-200 ease-out ${
+        expanded ? "max-w-[12rem] opacity-100 delay-75" : "max-w-0 opacity-0"
+      } ${className}`}
+    >
+      {children}
+    </span>
+  );
+}
+
+/**
+ * Small uppercase divider label. Collapses its own height rather than
+ * unmounting — mounting it shifted every row beneath it down by ~36px in one
+ * frame, which is what made the footer look like it snapped rather than opened.
+ */
+function RailLabel({
+  expanded,
+  children,
+}: {
+  expanded: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <li
+      aria-hidden={!expanded}
+      className={`flex items-end overflow-hidden whitespace-nowrap px-5 text-caption font-semibold uppercase tracking-[0.12em] text-ink-subtle transition-all duration-200 ease-out ${
+        expanded ? "h-9 pb-1 opacity-100 delay-75" : "h-0 pb-0 opacity-0"
+      }`}
+    >
+      {children}
+    </li>
+  );
 }
 
 function RailLink({
@@ -54,13 +117,9 @@ function RailLink({
       className={railRowClass(active, expanded)}
     >
       <NavIcon name={item.icon} />
-      {expanded ? (
-        <span
-          className={`truncate text-body-sm ${active ? "font-semibold" : ""}`}
-        >
-          {item.label}
-        </span>
-      ) : null}
+      <RailText expanded={expanded} className={active ? "font-semibold" : ""}>
+        {item.label}
+      </RailText>
     </Link>
   );
 }
@@ -73,14 +132,24 @@ function SignOutRow({
   onDone?: () => void;
 }) {
   return (
-    <form action={logout} onSubmit={onDone}>
+    // `flex flex-col` so the button stretches to the form's width the same way
+    // the `<li>` rows do — `width: auto` on a <button> is fit-content in some
+    // engines, which would leave the icon off-centre again.
+    <form action={logout} onSubmit={onDone} className="flex flex-col">
+      {/*
+        * No `w-full`: railRowClass already carries `mx-2`, and the two together
+        * sized the row to the rail's full width *plus* margins — pushing the
+        * icon 8px right of every link above it when collapsed, and the row 8px
+        * past the rail's edge when expanded. Left to `auto`, this button fills
+        * the form exactly like the `<a>` rows do.
+        */}
       <button
         type="submit"
         title={expanded ? undefined : "Sign out"}
-        className={`w-full cursor-pointer ${railRowClass(false, expanded)}`}
+        className={`cursor-pointer ${railRowClass(false, expanded)}`}
       >
         <NavIcon name="signOut" />
-        {expanded ? <span className="text-body-sm">Sign out</span> : null}
+        <RailText expanded={expanded}>Sign out</RailText>
       </button>
     </form>
   );
@@ -141,7 +210,8 @@ export function AppNav({
             onClick={toggleRail}
             aria-expanded={expanded}
             aria-label={expanded ? "Collapse navigation" : "Expand navigation"}
-            className="hidden h-14 w-14 cursor-pointer items-center justify-center border-r border-hairline text-ink hover:bg-surface-1 lg:flex"
+            title={expanded ? "Collapse navigation" : "Expand navigation"}
+            className="hidden h-14 w-14 cursor-pointer items-center justify-center border-r border-hairline text-ink-muted transition-colors hover:bg-surface-1 hover:text-ink lg:flex"
           >
             <NavIcon name="menu" />
           </button>
@@ -159,7 +229,7 @@ export function AppNav({
 
           <Link
             href="/"
-            className="px-4 text-body-sm font-semibold tracking-tight text-ink no-underline hover:no-underline"
+            className="flex h-full items-center px-4 text-body-sm font-semibold tracking-tight text-ink no-underline hover:no-underline"
           >
             Campus Elections
           </Link>
@@ -168,10 +238,11 @@ export function AppNav({
           </span>
         </div>
 
-        <div className="flex items-center gap-3 pr-4">
-          <span className="hidden truncate text-body-sm text-ink-muted sm:inline">
-            {identity.displayName}
-          </span>
+        <div className="flex items-center pr-4">
+          {/* The avatar is the whole identity indicator now. Its initials are
+              decorative, so the name it stands for is kept for screen readers
+              rather than dropped along with the visible label. */}
+          <span className="sr-only">Signed in as {identity.displayName}</span>
           <span
             aria-hidden="true"
             className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-caption font-semibold text-brand-ink"
@@ -245,10 +316,12 @@ export function AppNav({
         <nav
           aria-label={`${section.name} navigation`}
           className={`sticky top-14 hidden h-[calc(100vh-3.5rem)] shrink-0 flex-col border-r border-hairline bg-canvas transition-[width] duration-200 lg:flex ${
-            expanded ? "w-64" : "w-12"
+            // Collapsed matches the header toggle's 56px, so the border under
+            // that button continues straight down the rail's edge.
+            expanded ? "w-64" : "w-14"
           }`}
         >
-          <ul className="flex flex-col pt-3">
+          <ul className="flex flex-col gap-0.5 py-3">
             {section.items.map((item) => (
               <li key={item.href}>
                 <RailLink
@@ -262,48 +335,47 @@ export function AppNav({
 
           <div className="flex-1" />
 
-          {others.length > 0 ? (
-            <ul className="flex flex-col border-t border-hairline pt-4">
-              {expanded ? (
-                <li className="px-4 pb-2 text-caption text-ink-subtle">
-                  Your other access
-                </li>
-              ) : (
-                <li className="px-2 pb-2" aria-hidden="true" />
-              )}
-              {others.map((other) => (
-                <li key={other.key}>
-                  <Link
-                    href={other.items[0].href}
-                    title={expanded ? undefined : other.name}
-                    className={railRowClass(false, expanded)}
-                  >
-                    <NavIcon name={other.icon} />
-                    {expanded ? (
-                      <span className="truncate text-body-sm">
-                        {other.name}
-                      </span>
-                    ) : null}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          ) : null}
+          {/*
+            * One footer block, one rule. This used to be three stacked
+            * `border-t` groups — other access, sign out, and a Collapse button
+            * that duplicated the header toggle. The toggle lives in the header
+            * only, where its position does not change with the rail's state.
+            */}
+          <div className="flex flex-col gap-0.5 border-t border-hairline py-3">
+            {others.length > 0 ? (
+              <ul className="flex flex-col gap-0.5">
+                <RailLabel expanded={expanded}>Other access</RailLabel>
+                {others.map((other) => (
+                  <li key={other.key}>
+                    <Link
+                      href={other.items[0].href}
+                      title={expanded ? undefined : other.name}
+                      className={railRowClass(false, expanded)}
+                    >
+                      <NavIcon name={other.icon} />
+                      <RailText expanded={expanded}>{other.name}</RailText>
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            ) : null}
 
-          <div className="border-t border-hairline pt-3">
-            <SignOutRow expanded={expanded} />
+            {/*
+              * With other-access rows present the footer holds two different
+              * kinds of thing — moving around inside the app, and leaving it —
+              * so a rule separates them. Alone, sign out needs no divider above
+              * it; the footer's own border already does that job.
+              */}
+            <div
+              className={
+                others.length > 0
+                  ? "mt-1.5 border-t border-hairline pt-1.5"
+                  : undefined
+              }
+            >
+              <SignOutRow expanded={expanded} />
+            </div>
           </div>
-
-          <button
-            type="button"
-            onClick={toggleRail}
-            aria-expanded={expanded}
-            title={expanded ? undefined : "Expand"}
-            className={`cursor-pointer mt-5 border-t border-hairline ${railRowClass(false, expanded)}`}
-          >
-            <NavIcon name={expanded ? "chevronLeft" : "chevronRight"} />
-            {expanded ? <span className="text-body-sm">Collapse</span> : null}
-          </button>
         </nav>
 
         {/*

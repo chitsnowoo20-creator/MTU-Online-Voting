@@ -73,21 +73,23 @@ export function CategoryBallot({
                   aria-checked={isSelected}
                   disabled={confirming}
                   onClick={() => setSelectedId(candidate.id)}
+                  /*
+                   * Same card as the officer's candidate manager: photo bleeds
+                   * to the edges and is clipped by the card's radius, body sits
+                   * in its own padded block. `rounded-[var(--radius-lg)]` is the
+                   * radius `.surface-card` uses, so the two match exactly — this
+                   * card cannot use that class directly because it needs a 2px
+                   * border to carry the selected state.
+                   */
                   className={
-                    "card-hover group flex w-full cursor-pointer flex-col rounded-2xl border-2 p-4 text-left transition-all " +
+                    "card-hover group flex w-full cursor-pointer flex-col overflow-hidden " +
+                    "rounded-[var(--radius-lg)] border-2 text-left transition-all " +
                     (isSelected
                       ? "border-primary bg-primary/5 shadow-[0_0_0_4px_rgb(87_173_222/0.15)]"
                       : "border-hairline bg-canvas hover:border-primary/40 hover:shadow-soft")
                   }
                 >
-                  <div
-                    className={
-                      "relative mb-3 aspect-[4/5] w-full overflow-hidden rounded-xl bg-surface-1 transition-all duration-300 " +
-                      (isSelected
-                        ? "ring-2 ring-primary ring-offset-2"
-                        : "ring-1 ring-hairline group-hover:ring-primary/30")
-                    }
-                  >
+                  <div className="relative aspect-square w-full overflow-hidden bg-surface-1">
                     <Image
                       src={candidate.photo_url}
                       alt=""
@@ -95,23 +97,32 @@ export function CategoryBallot({
                       sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 280px"
                       className="object-cover transition-transform duration-500 group-hover:scale-[1.03]"
                     />
-                    {/* Soft gradient overlay for depth */}
-                    <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/10 via-transparent to-transparent" aria-hidden="true" />
+                    <div
+                      className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ink/10 via-transparent to-transparent"
+                      aria-hidden="true"
+                    />
                     {isSelected ? (
-                      <span className="absolute right-2 top-2 flex h-7 w-7 items-center justify-center rounded-full bg-[image:var(--gradient-brand)] text-sm text-white shadow-soft">
+                      <span className="absolute right-2.5 top-2.5 flex h-7 w-7 items-center justify-center rounded-full bg-[image:var(--gradient-brand)] text-sm text-white shadow-soft">
                         ✓
                       </span>
                     ) : null}
                   </div>
-                  <span className="text-body font-semibold text-ink">{candidate.display_name}</span>
-                  {candidate.tagline ? (
-                    <span className="mt-0.5 text-caption text-ink-muted">{candidate.tagline}</span>
-                  ) : null}
-                  {candidate.department_code ? (
-                    <span className="mt-2 inline-block w-fit rounded-full bg-surface-2 px-2.5 py-1 text-caption font-medium text-ink-subtle">
-                      {candidate.department_code}
+
+                  <div className="flex flex-1 flex-col gap-0.5 p-4">
+                    <span className="truncate text-body font-semibold text-ink">
+                      {candidate.display_name}
                     </span>
-                  ) : null}
+                    {candidate.tagline ? (
+                      <span className="line-clamp-2 text-caption text-ink-muted">
+                        {candidate.tagline}
+                      </span>
+                    ) : null}
+                    {candidate.department_code ? (
+                      <span className="mt-2 inline-block w-fit rounded-full bg-surface-2 px-2.5 py-1 text-caption font-medium text-ink-subtle">
+                        {candidate.department_code}
+                      </span>
+                    ) : null}
+                  </div>
                 </button>
               </li>
             );

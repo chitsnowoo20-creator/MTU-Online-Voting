@@ -55,18 +55,27 @@ export default async function ElectionsPage() {
           <>
             <ul className="flex flex-col divide-y divide-hairline md:hidden">
               {rows.map((election) => (
-                <li key={election.id} className="px-6 py-4">
-                  <Link href={`/elections/${election.id}`}>{election.name}</Link>
-                  <p className="mt-1 text-body-sm text-ink-muted">
-                    {formatRange(election.opens_at, election.closes_at)}
-                  </p>
-                  <div className="mt-2">
-                    <StateTag
-                      state={election.state}
-                      opensAt={election.opens_at}
-                      closesAt={election.closes_at}
-                    />
-                  </div>
+                // The whole row is the tap target on mobile, not just the name:
+                // an inline link is ~19px tall, well under a finger.
+                <li key={election.id}>
+                  <Link
+                    href={`/elections/${election.id}`}
+                    className="block px-6 py-4 no-underline hover:bg-primary/5 hover:no-underline"
+                  >
+                    <span className="block font-semibold text-brand-ink">
+                      {election.name}
+                    </span>
+                    <span className="mt-1 block text-body-sm text-ink-muted">
+                      {formatRange(election.opens_at, election.closes_at)}
+                    </span>
+                    <span className="mt-2 block">
+                      <StateTag
+                        state={election.state}
+                        opensAt={election.opens_at}
+                        closesAt={election.closes_at}
+                      />
+                    </span>
+                  </Link>
                 </li>
               ))}
             </ul>

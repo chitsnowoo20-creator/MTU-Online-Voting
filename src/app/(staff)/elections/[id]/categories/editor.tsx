@@ -17,16 +17,26 @@ import { FormError } from "@/components/ui/tile";
 type Award = { id: string; rank: number; label: string };
 type Category = { id: string; name: string; awards: Award[] };
 
+/**
+ * Destructive row actions. Bare text gave a target the width of the word; this
+ * is the same treatment the other staff row actions use.
+ */
+const ROW_ACTION =
+  "-mr-2.5 inline-flex min-h-11 cursor-pointer items-center rounded-lg px-2.5 " +
+  "text-caption text-error-ink transition-colors hover:bg-error-bg lg:min-h-8";
+
 function PendingButton({
   label,
   variant = "primary",
+  className = "",
 }: {
   label: string;
   variant?: "primary" | "tertiary" | "ghost";
+  className?: string;
 }) {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" variant={variant} disabled={pending}>
+    <Button type="submit" variant={variant} disabled={pending} className={className}>
       {pending ? "Saving…" : label}
     </Button>
   );
@@ -79,7 +89,7 @@ function AwardRows({
                   <input type="hidden" name="electionId" value={electionId} />
                   <button
                     type="submit"
-                    className="cursor-pointer text-caption text-error-ink"
+                    className={ROW_ACTION}
                   >
                     Remove
                   </button>
@@ -110,7 +120,8 @@ function AwardRows({
             key={nextRank}
           />
         </div>
-        <div className="min-w-[180px] flex-1">
+        {/* Capped: the card is full width now, an award title is not. */}
+        <div className="min-w-[180px] max-w-[420px] flex-1">
           <label
             htmlFor={`label-${category.id}`}
             className="mb-1.5 block text-caption text-ink-muted"
@@ -148,7 +159,7 @@ export function CategoryEditor({
   return (
     <div className="flex flex-col gap-6">
       {categories.map((category) => (
-        <div key={category.id} className="surface-card">
+        <div key={category.id} className="surface-card overflow-hidden">
           <div className="flex items-center justify-between gap-4 border-b border-hairline px-6 py-4">
             <h2 className="text-card-title">{category.name}</h2>
             <form action={removeAction}>
@@ -156,7 +167,7 @@ export function CategoryEditor({
               <input type="hidden" name="electionId" value={electionId} />
               <button
                 type="submit"
-                className="cursor-pointer text-caption text-error-ink"
+                className={ROW_ACTION}
               >
                 Delete category
               </button>
@@ -172,23 +183,30 @@ export function CategoryEditor({
 
       <div className="surface-card px-6 py-6">
         {addState.error ? <FormError>{addState.error}</FormError> : null}
-        <form action={addAction} className="flex flex-wrap items-end gap-3">
+        {/*
+          * Same framed cell as the audit filters: the label lives inside the
+          * cell above a borderless control, so the field reads as one object
+          * and the whole 64px cell is the tap target. `items-stretch` lets the
+          * button match the field's height without a hard-coded value.
+          */}
+        <form action={addAction} className="flex flex-wrap items-stretch gap-3">
           <input type="hidden" name="electionId" value={electionId} />
-          <div className="min-w-[220px] flex-1">
-            <label
-              htmlFor="new-category"
-              className="mb-1.5 block text-caption text-ink-muted"
-            >
+          <label
+            htmlFor="new-category"
+            className="flex min-w-[220px] max-w-[520px] flex-1 cursor-pointer flex-col justify-center rounded-2xl border border-hairline bg-canvas px-5 py-2.5 shadow-soft transition-colors focus-within:border-primary"
+          >
+            <span className="text-caption text-ink-muted">
               New category name
-            </label>
-            <TextInput
+            </span>
+            <input
               id="new-category"
               name="name"
               placeholder="Male"
               autoComplete="off"
+              className="w-full bg-transparent text-body text-ink outline-none placeholder:text-ink-subtle"
             />
-          </div>
-          <PendingButton label="Add category" />
+          </label>
+          <PendingButton label="Add category" className="!rounded-2xl !px-6" />
         </form>
         <p className="mt-3 text-caption text-ink-muted">
           Category names are free text — whatever this election calls them.

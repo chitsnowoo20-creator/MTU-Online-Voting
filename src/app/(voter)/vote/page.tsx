@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { CategoryBallot, type BallotCandidate } from "./ballot";
+import { DashboardPage, RailCard } from "@/components/ui/dashboard-page";
 import { formatCountdown, formatMoment, votingPhase } from "@/lib/election/schedule";
 import { Tag } from "@/components/ui/tag";
 import { requireApprovedVoter } from "@/lib/auth/guards";
@@ -13,39 +14,24 @@ export const metadata: Metadata = { title: "Vote · Campus Elections" };
 // already done, and whether the window is still open.
 export const dynamic = "force-dynamic";
 
-function Shell({ children }: { children: React.ReactNode }) {
-  return (
-    <main className="flex-1 bg-surface-1 px-4 py-16">
-      <div className="mx-auto w-full max-w-[960px]">{children}</div>
-    </main>
-  );
-}
-
+/** The empty and waiting states: a header and one panel, no rail. */
 function Notice({
-  title,
-  eyebrow,
   symbol,
   children,
 }: {
-  title: string;
-  eyebrow: string;
   symbol: string;
   children: React.ReactNode;
 }) {
   return (
-    <div className="surface-panel relative overflow-hidden px-6 py-10 text-center sm:px-10 sm:py-14">
+    <section className="surface-panel relative overflow-hidden px-6 py-12 text-center sm:px-10">
       <div className="pointer-events-none absolute -right-12 -top-12 h-44 w-44 rounded-full bg-primary/15 blur-3xl" />
       <div className="relative mx-auto max-w-[580px]">
         <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-primary/10 text-2xl text-brand-ink shadow-soft">
           {symbol}
         </span>
-        <p className="mt-5 text-caption font-bold uppercase tracking-[0.14em] text-brand-ink">
-          {eyebrow}
-        </p>
-        <h1 className="mt-1 text-headline">{title}</h1>
-        <div className="mt-3 text-body text-ink-muted">{children}</div>
+        <div className="mt-5 text-body text-ink-muted">{children}</div>
       </div>
-    </div>
+    </section>
   );
 }
 
@@ -63,16 +49,15 @@ export default async function VotePage() {
 
   if (!election) {
     return (
-      <Shell>
-        <Notice
-          title="No ballot is available"
-          eyebrow="Voting centre"
-          symbol="○"
-        >
+      <DashboardPage
+        eyebrow="Voting centre"
+        title="No ballot is available"
+      >
+        <Notice symbol="○">
           Nothing is accepting votes at the moment. Check back when voting
           opens — you&rsquo;ll be able to vote from here.
         </Notice>
-      </Shell>
+      </DashboardPage>
     );
   }
 
@@ -82,12 +67,16 @@ export default async function VotePage() {
   const phase = votingPhase("OPEN", election.opens_at, election.closes_at);
   if (phase === "SCHEDULED") {
     return (
-      <Shell>
-        <Notice title={election.name} eyebrow="Ballot scheduled" symbol="◷">
+      <DashboardPage
+        eyebrow="Ballot scheduled"
+        title={election.name}
+        status={<Tag tone="info">Opens {formatCountdown(election.opens_at)}</Tag>}
+      >
+        <Notice symbol="◷">
           Voting opens {formatCountdown(election.opens_at)}, at{" "}
           {formatMoment(election.opens_at)}.
         </Notice>
-      </Shell>
+      </DashboardPage>
     );
   }
 
@@ -111,31 +100,15 @@ export default async function VotePage() {
   const groups = categories ?? [];
   const remaining = groups.filter((category) => !votedIn.has(category.id));
 
-  return (
-    <Shell>
-      <div className="mb-6 overflow-hidden rounded-3xl border border-hairline bg-canvas shadow-soft">
-        <div className="flex flex-wrap items-baseline justify-between gap-3 px-5 py-5 sm:px-7">
-        <div>
-          <p className="eyebrow-label">Voting is live</p>
-          <h1 className="text-headline">{election.name}</h1>
-          <p className="mt-1 text-body-sm text-ink-muted">
-            One vote per category · closes {formatCountdown(election.closes_at)}
-          </p>
-        </div>
-        <Tag tone={remaining.length === 0 ? "done" : "pending"}>
-          {groups.length - remaining.length} of {groups.length} cast
-        </Tag>
-        </div>
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-hairline bg-primary/6 px-5 py-3 sm:px-7">
-          <p className="text-body-sm font-semibold text-brand-ink">Time remaining</p>
-          <p className="rounded-full border border-primary/20 bg-canvas px-3 py-1 text-body-sm font-bold text-ink shadow-soft">
-            {formatCountdown(election.closes_at)}
-          </p>
-        </div>
-      </div>
-
-      {remaining.length === 0 ? (
-        <div className="surface-panel px-6 py-10">
+  if (remaining.length === 0) {
+    return (
+      <DashboardPage
+        eyebrow="Voting is live"
+        title={election.name}
+        subtitle={`One vote per category · closes ${formatCountdown(election.closes_at)}`}
+        status={<Tag tone="done">{groups.length} of {groups.length} cast</Tag>}
+      >
+        <section className="surface-panel px-6 py-10">
           <h2 className="text-card-title">Your vote is in</h2>
           <p className="mt-2 text-body text-ink-muted">
             You&rsquo;ve voted in every category. Results are published after
@@ -151,55 +124,84 @@ export default async function VotePage() {
             {" · "}
             <Link href="/account">Your status</Link>
           </p>
-        </div>
-      ) : (
-        <div className="flex flex-col gap-6">
-          {groups.map((category) => {
-            if (votedIn.has(category.id)) {
-              return (
-                <section
-                  key={category.id}
-                  className="surface-card flex flex-wrap items-center justify-between gap-3 px-6 py-5"
-                >
-                  <div>
-                    <h2 className="text-card-title">{category.name}</h2>
-                    <p className="text-body-sm text-ink-muted">
-                      Your vote in this category is recorded.
-                    </p>
-                  </div>
-                  <Tag tone="done">Voted</Tag>
-                </section>
-              );
-            }
+        </section>
+      </DashboardPage>
+    );
+  }
 
-            const candidates: BallotCandidate[] = category.candidates
+  return (
+    <DashboardPage
+      eyebrow="Voting is live"
+      title={election.name}
+      subtitle={`One vote per category · closes ${formatCountdown(election.closes_at)}`}
+      status={
+        <Tag tone="pending">
+          {groups.length - remaining.length} of {groups.length} cast
+        </Tag>
+      }
+      rail={
+        <>
+          <RailCard title="Time remaining">
+            <p className="text-body-sm font-bold text-ink">
+              {formatCountdown(election.closes_at)}
+            </p>
+            <p className="mt-1 text-caption text-ink-muted">
+              Closes {formatMoment(election.closes_at)}
+            </p>
+          </RailCard>
+          <RailCard title="Your ballot">
+            <p className="text-caption text-ink-muted">
+              One candidate per category, and a vote cannot be changed once
+              cast. Your ballot is recorded with no link back to your account.
+            </p>
+          </RailCard>
+        </>
+      }
+    >
+      {groups.map((category) => {
+        if (votedIn.has(category.id)) {
+          return (
+            <section
+              key={category.id}
+              className="surface-card flex flex-wrap items-center justify-between gap-3 px-6 py-5"
+            >
+              <div>
+                <h2 className="text-card-title">{category.name}</h2>
+                <p className="text-body-sm text-ink-muted">
+                  Your vote in this category is recorded.
+                </p>
+              </div>
+              <Tag tone="done">Voted</Tag>
+            </section>
+          );
+        }
+
+        const candidates: BallotCandidate[] = category.candidates
+          .slice()
+          .sort((a, b) => a.display_order - b.display_order)
+          .map((candidate) => ({
+            id: candidate.id,
+            display_name: candidate.display_name,
+            tagline: candidate.tagline,
+            department_code: candidate.department_code,
+            photo_url: supabase.storage
+              .from("candidate-photos")
+              .getPublicUrl(candidate.photo_path).data.publicUrl,
+          }));
+
+        return (
+          <CategoryBallot
+            key={category.id}
+            categoryId={category.id}
+            categoryName={category.name}
+            awardLabels={category.awards
               .slice()
-              .sort((a, b) => a.display_order - b.display_order)
-              .map((candidate) => ({
-                id: candidate.id,
-                display_name: candidate.display_name,
-                tagline: candidate.tagline,
-                department_code: candidate.department_code,
-                photo_url: supabase.storage
-                  .from("candidate-photos")
-                  .getPublicUrl(candidate.photo_path).data.publicUrl,
-              }));
-
-            return (
-              <CategoryBallot
-                key={category.id}
-                categoryId={category.id}
-                categoryName={category.name}
-                awardLabels={category.awards
-                  .slice()
-                  .sort((a, b) => a.rank - b.rank)
-                  .map((award) => award.label)}
-                candidates={candidates}
-              />
-            );
-          })}
-        </div>
-      )}
-    </Shell>
+              .sort((a, b) => a.rank - b.rank)
+              .map((award) => award.label)}
+            candidates={candidates}
+          />
+        );
+      })}
+    </DashboardPage>
   );
 }

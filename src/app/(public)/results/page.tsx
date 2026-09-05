@@ -47,7 +47,7 @@ export default async function ResultsPage() {
 
   return (
     <main className="surface-page flex-1 px-4 py-10 sm:py-16">
-      <div className="mx-auto w-full max-w-[960px]">
+      <div className="mx-auto w-full max-w-[1120px]">
         <div className="mb-8">
           <p className="text-body-sm text-ink-muted">
             Final result · {formatMoment(latest.closes_at)}

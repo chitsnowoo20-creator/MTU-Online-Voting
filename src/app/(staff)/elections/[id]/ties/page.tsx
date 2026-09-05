@@ -53,7 +53,7 @@ export default async function TiesPage({
       title="Resolve ties"
       subtitle={election.name}
       back={{ href: `/elections/${id}`, label: election.name }}
-      width="640px"
+      contentWidth="640px"
     >
       {error ? (
         <div className="surface-card px-6 py-8 text-body-sm text-error-ink">

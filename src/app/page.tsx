@@ -1,6 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
 
+import { HomeDashboard } from "@/components/home/dashboard";
+import { AppFrame } from "@/components/nav/app-frame";
 import { ButtonLink } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import { getCurrentUser, type CurrentUser } from "@/lib/auth/guards";
@@ -98,13 +100,126 @@ export default async function Home() {
   const { data: categories } = featured
     ? await supabase
         .from("categories")
-        .select("id, candidates(id)")
+        .select("id, name, display_order, awards(rank, label), candidates(id)")
         .eq("election_id", featured.id)
+        .order("display_order")
     : { data: null };
 
   const categoryCount = categories?.length ?? 0;
   const candidateCount =
     categories?.reduce((total, category) => total + category.candidates.length, 0) ?? 0;
+
+  /*
+   * Signed in, `/` is the app's home rather than the pitch: the same chrome
+   * every other voter screen wears, with the dashboard inside it. Until now the
+   * rail's "Home" item dropped a signed-in voter onto the marketing page and
+   * out of the chrome entirely.
+   *
+   * Signed out, everything below is unchanged — AppFrame renders children bare
+   * when there is no user, so the landing page keeps its own header.
+   */
+  if (user) {
+    const published = featured?.state === "PUBLISHED";
+
+    /*
+     * Three reads the marketing page never needs, so they live inside this
+     * branch. All are things the viewer may already see elsewhere: their own
+     * ballot_issued rows (who voted, never what), and the published tally,
+     * which `election_results` gates on state = 'PUBLISHED' itself. Nothing
+     * here can surface a count before publication.
+     */
+    const [issuedRes, resultsRes, tiesRes] = await Promise.all([
+      featured && user.voterStatus === "APPROVED"
+        ? supabase
+            .from("ballot_issued")
+            .select("category_id")
+            .eq("election_id", featured.id)
+        : null,
+      published
+        ? supabase
+            .from("election_results")
+            .select(
+              "category_id, category_name, category_order, candidate_id, display_name, photo_path, vote_count, result_rank",
+            )
+            .eq("election_id", featured!.id)
+        : null,
+      published
+        ? supabase
+            .from("tie_resolutions")
+            .select("category_id, resolution")
+            .eq("election_id", featured!.id)
+        : null,
+    ]);
+
+    const votedIn = new Set(
+      (issuedRes?.data ?? []).map((row) => row.category_id),
+    );
+    const ballot = issuedRes
+      ? (categories ?? []).map((category) => ({
+          id: category.id,
+          name: category.name,
+          voted: votedIn.has(category.id),
+        }))
+      : null;
+
+    const resultRows = resultsRes?.data ?? [];
+    const totalVotes = published
+      ? resultRows.reduce((sum, row) => sum + (row.vote_count ?? 0), 0)
+      : null;
+
+    // An officer's tie resolution overrides the raw rank, exactly as it does on
+    // the results page — a preview that ignored it would name the wrong winner.
+    const resolutionFor = new Map(
+      (tiesRes?.data ?? []).map((tie) => [
+        tie.category_id,
+        tie.resolution as Record<string, number> | null,
+      ]),
+    );
+    const finalRank = (row: (typeof resultRows)[number]) =>
+      resolutionFor.get(row.category_id ?? "")?.[row.candidate_id ?? ""] ??
+      row.result_rank ??
+      0;
+
+    const byCategory = new Map<string, typeof resultRows>();
+    for (const row of resultRows) {
+      const key = row.category_id ?? "";
+      byCategory.set(key, [...(byCategory.get(key) ?? []), row]);
+    }
+
+    const winners = [...byCategory.values()]
+      .map((rows) => rows.slice().sort((a, b) => finalRank(a) - finalRank(b))[0])
+      .filter((row) => row && finalRank(row) === 1)
+      .sort((a, b) => (a.category_order ?? 0) - (b.category_order ?? 0))
+      .map((row) => ({
+        categoryId: row.category_id ?? "",
+        categoryName: row.category_name ?? "",
+        awardLabel:
+          categories
+            ?.find((category) => category.id === row.category_id)
+            ?.awards.find((award) => award.rank === 1)?.label ?? null,
+        displayName: row.display_name ?? "",
+        voteCount: row.vote_count ?? 0,
+        photoUrl: row.photo_path
+          ? supabase.storage
+              .from("candidate-photos")
+              .getPublicUrl(row.photo_path).data.publicUrl
+          : null,
+      }));
+
+    return (
+      <AppFrame>
+        <HomeDashboard
+          user={user}
+          featured={featured}
+          categoryCount={categoryCount}
+          candidateCount={candidateCount}
+          totalVotes={totalVotes}
+          ballot={ballot}
+          winners={winners}
+        />
+      </AppFrame>
+    );
+  }
 
   const { status, tone, cta } = hero(featured, user);
   const deadline = featured?.verification_deadline ?? null;
@@ -257,15 +372,17 @@ export default async function Home() {
           </div>
         </section>
 
-        {deadlineAhead && user?.voterStatus !== "APPROVED" ? (
+        {/* Only signed-out visitors reach this point, so the banner no longer
+            branches on the viewer: it always addresses someone with no account. */}
+        {deadlineAhead ? (
           <section className="bg-accent-bg">
             <div className="mx-auto flex max-w-[1120px] flex-col items-start justify-between gap-4 px-4 py-5 sm:flex-row sm:items-center sm:px-6">
               <p className="flex items-center gap-2 text-body-sm font-medium text-accent-ink">
                 <span className="text-lg">⏰</span>
                 Verification closes {formatMoment(deadline)} — get verified before the ballot opens.
               </p>
-              <ButtonLink href={user ? "/verify" : "/register"} className="!min-h-10 !w-full !px-5 !text-caption sm:!w-auto">
-                {user ? "Start verification" : "Register"}
+              <ButtonLink href="/register" className="!min-h-10 !w-full !px-5 !text-caption sm:!w-auto">
+                Register
               </ButtonLink>
             </div>
           </section>

@@ -23,8 +23,6 @@ export default async function DepartmentsPage() {
     <StaffPage
       title="Departments"
       subtitle="Admin"
-      back={{ href: "/admin", label: "Admin" }}
-      width="720px"
     >
       {error ? (
         <div className="surface-card px-6 py-8 text-body-sm text-error-ink">
