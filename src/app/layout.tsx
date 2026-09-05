@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Campus Elections",
   description:
-    "Secure online voting for the university King & Queen election. One vote per person, secret ballots, full auditability.",
+    "Secure online voting for university student elections. One vote per person, secret ballots, full auditability.",
   icons: {
     icon: "/MTU_Logo.png",
     shortcut: "/MTU_Logo.png",
