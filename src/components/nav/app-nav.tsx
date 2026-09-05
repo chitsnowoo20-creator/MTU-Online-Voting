@@ -284,13 +284,21 @@ export function AppNav({
             <NavIcon name={menuOpen ? "close" : "menu"} />
           </button>
 
+          {/*
+            * The brand shortens below `sm` so the section still fits. Which
+            * access you are currently in — Voter, Reviewer, Officer, Admin —
+            * is the more useful of the two on a phone: it says which role's
+            * tools the bar below is showing. It used to be `hidden sm:inline`,
+            * so a phone gave no indication at all.
+            */}
           <Link
             href="/"
-            className="flex h-full items-center px-4 text-body-sm font-semibold tracking-tight text-ink no-underline hover:no-underline"
+            className="flex h-full shrink-0 items-center px-4 text-body-sm font-semibold tracking-tight text-ink no-underline hover:no-underline"
           >
-            Campus Elections
+            <span className="sm:hidden">Elections</span>
+            <span className="hidden sm:inline">Campus Elections</span>
           </Link>
-          <span className="hidden truncate text-body-sm text-ink-muted sm:inline">
+          <span className="truncate text-body-sm text-ink-muted">
             {section.name}
           </span>
         </div>
