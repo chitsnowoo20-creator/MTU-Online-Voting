@@ -53,6 +53,35 @@ export function formatCountdown(iso: string | null): string {
   return relative.format(0, "minute");
 }
 
+/**
+ * The same countdown split into a magnitude and its unit.
+ *
+ * For stat tiles, which read as [big number][small label]. `formatCountdown`
+ * returns a phrase — "4 days ago" — which cannot sit at the same type size as
+ * the integers beside it, and needed a one-off smaller size to fit.
+ */
+export function countdownParts(
+  iso: string | null,
+): { value: number; unit: string; past: boolean } | null {
+  if (!iso) return null;
+
+  const diff = Date.parse(iso) - Date.now();
+  const past = diff < 0;
+  const units: [string, number][] = [
+    ["day", 86_400_000],
+    ["hour", 3_600_000],
+    ["minute", 60_000],
+  ];
+
+  for (const [unit, ms] of units) {
+    if (Math.abs(diff) >= ms) {
+      const value = Math.round(Math.abs(diff) / ms);
+      return { value, unit: value === 1 ? unit : `${unit}s`, past };
+    }
+  }
+  return { value: 0, unit: "minutes", past };
+}
+
 /** A date and time as a person wants to read it, not as an ISO string. */
 export function formatMoment(iso: string | null): string {
   if (!iso) return "Not scheduled";

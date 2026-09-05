@@ -5,6 +5,7 @@ import { DashboardPage, RailCard } from "@/components/ui/dashboard-page";
 import { Tag } from "@/components/ui/tag";
 import type { CurrentUser } from "@/lib/auth/guards";
 import {
+  countdownParts,
   formatCountdown,
   formatMoment,
   isUpcoming,
@@ -135,6 +136,7 @@ export function HomeDashboard({
   const deadline = featured?.verification_deadline ?? null;
   const deadlineAhead = isUpcoming(deadline);
   const showStats = Boolean(featured) && categoryCount > 0;
+  const closing = countdownParts(featured?.closes_at ?? null);
 
   const cast = ballot?.filter((category) => category.voted).length ?? 0;
 
@@ -239,15 +241,15 @@ export function HomeDashboard({
                 */}
               <div className="flex flex-col gap-2 bg-canvas p-6">
                 <dt className="text-body-sm text-ink-muted">
-                  {featured.state === "OPEN"
-                    ? "until close"
+                  {featured.state === "OPEN" && closing
+                    ? `${closing.unit} until close`
                     : totalVotes !== null
                       ? "votes cast"
                       : "voting"}
                 </dt>
                 <dd className="text-display-md">
-                  {featured.state === "OPEN" && featured.closes_at
-                    ? formatCountdown(featured.closes_at).replace(/^in /, "")
+                  {featured.state === "OPEN" && closing
+                    ? closing.value
                     : totalVotes !== null
                       ? totalVotes
                       : "closed"}

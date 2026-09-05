@@ -7,6 +7,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { Tag } from "@/components/ui/tag";
 import { getCurrentUser, type CurrentUser } from "@/lib/auth/guards";
 import {
+  countdownParts,
   formatCountdown,
   formatMoment,
   isUpcoming,
@@ -16,10 +17,16 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
+/*
+ * Explanatory only — deliberately not links. `/verify` and `/vote` are both in
+ * the proxy's protected prefixes, so a signed-out visitor clicking "Explore
+ * this step" was redirected to /login. The one thing a guest can actually do is
+ * register, and that is the section's single call to action.
+ */
 const STEPS = [
-  { step: "01", href: "/register", title: "Register", body: "Any email works. Confirm it from your inbox." },
-  { step: "02", href: "/verify", title: "Verify identity", body: "Upload your ID card. A reviewer checks it, then deletes the image." },
-  { step: "03", href: "/vote", title: "Vote", body: "One candidate per category. Votes are private and final." },
+  { step: "01", title: "Register", body: "Any email works. Confirm it from your inbox." },
+  { step: "02", title: "Verify identity", body: "Upload your ID card. A reviewer checks it, then deletes the image." },
+  { step: "03", title: "Vote", body: "One candidate per category. Votes are private and final." },
 ];
 
 type Featured = {
@@ -224,6 +231,7 @@ export default async function Home() {
   const { status, tone, cta } = hero(featured, user);
   const deadline = featured?.verification_deadline ?? null;
   const deadlineAhead = isUpcoming(deadline);
+  const closing = countdownParts(featured?.closes_at ?? null);
 
   return (
     <>
@@ -282,9 +290,7 @@ export default async function Home() {
                 </div>
                 <h1 className="animate-fade-up mt-6 max-w-[760px] text-display-md text-ink sm:text-display-xl" style={{ animationDelay: "0.05s" }}>
                   Your campus.{" "}
-                  <span className="brand-gradient-text">
-                    Your King & Queen.
-                  </span>
+                  <span className="brand-gradient-text">Your choice.</span>
                 </h1>
                 <p className="animate-fade-up mt-5 max-w-[560px] text-body-lg text-ink-muted" style={{ animationDelay: "0.1s" }}>
                   Every verified student and staff member gets one vote per category.
@@ -312,14 +318,18 @@ export default async function Home() {
                     {[
                       { label: "categories on the ballot", value: categoryCount },
                       { label: "candidates standing", value: candidateCount },
+                      // Number + unit, so all three tiles share one type size.
                       {
-                        label: featured.state === "OPEN" ? "until voting closes" : "voting closed",
-                        value: featured.closes_at ? formatCountdown(featured.closes_at).replace(/^in /, "") : "—",
-                        valueClassName: "text-[1.55rem] font-bold leading-tight whitespace-nowrap",
+                        label: closing
+                          ? closing.past
+                            ? `${closing.unit} since voting closed`
+                            : `${closing.unit} until voting closes`
+                          : "voting",
+                        value: closing ? closing.value : "—",
                       },
                     ].map((stat) => (
                       <div key={stat.label} className="glass-panel card-hover min-w-0 rounded-2xl p-5 shadow-soft sm:p-6">
-                        <dd className={`text-ink ${stat.valueClassName ?? "text-display-md"}`}>{stat.value}</dd>
+                        <dd className="text-display-md text-ink">{stat.value}</dd>
                         <dt className="mt-1 text-body-sm text-ink-muted">{stat.label}</dt>
                       </div>
                     ))}
@@ -397,16 +407,15 @@ export default async function Home() {
                 <h2 className="mt-2 text-display-md">How it works</h2>
                 <p className="mt-3 max-w-[560px] text-body text-ink-muted">A clear, three-step path from registration to a secure vote.</p>
               </div>
-              <Link href={cta.href} className="link-action text-body-sm">{cta.label}</Link>
+              <Link href="/register" className="link-action text-body-sm">Register</Link>
             </div>
             <div className="mt-8 grid gap-4 sm:mt-10 sm:grid-cols-3 sm:gap-5">
               {STEPS.map((item) => (
-                <Link key={item.step} href={item.href} className="card-hover group relative rounded-2xl border border-hairline bg-canvas p-6 shadow-soft no-underline hover:border-primary/45 hover:no-underline sm:p-7">
+                <div key={item.step} className="relative rounded-2xl border border-hairline bg-canvas p-6 shadow-soft sm:p-7">
                   <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10 text-body-sm font-bold text-brand-ink">{item.step}</span>
                   <p className="mt-5 text-subhead text-ink">{item.title}</p>
                   <p className="mt-1.5 text-body-sm text-ink-muted">{item.body}</p>
-                  <span className="mt-6 inline-flex items-center gap-2 text-body-sm font-semibold text-brand-ink">Explore this step <span aria-hidden="true" className="transition-transform duration-200 group-hover:translate-x-1">→</span></span>
-                </Link>
+                </div>
               ))}
             </div>
           </div>
@@ -428,10 +437,12 @@ export default async function Home() {
                 </div>
                 <Tag tone={featured?.state === "PUBLISHED" ? "done" : "locked"}>{featured?.state === "PUBLISHED" ? "Published" : "When published"}</Tag>
               </div>
-              <div className="grid gap-px bg-hairline sm:grid-cols-2">
-                <div className="bg-surface-1 p-5 sm:p-6"><p className="text-display-md text-ink">{categoryCount || "—"}</p><p className="mt-1 text-body-sm text-ink-muted">categories</p></div>
-                <div className="bg-surface-1 p-5 sm:p-6"><p className="text-display-md text-ink">{candidateCount || "—"}</p><p className="mt-1 text-body-sm text-ink-muted">candidates</p></div>
-              </div>
+              {/* The hero already carries categories and candidates; repeating
+                  them here put the same two numbers on the page twice. */}
+              <p className="bg-surface-1 px-5 py-6 text-body-sm text-ink-muted sm:px-6">
+                Final rankings and vote totals for every category, published
+                together once voting has closed.
+              </p>
               <div className="flex items-center justify-between bg-canvas px-5 py-4 text-body-sm font-semibold text-brand-ink sm:px-6"><span>Open results centre</span><span aria-hidden="true">→</span></div>
             </Link>
           </div>
@@ -460,9 +471,11 @@ export default async function Home() {
           <div>
             <p className="text-body-sm font-semibold text-inverse-ink">Voting</p>
             <ul className="mt-4 grid gap-3 text-body-sm sm:grid-cols-2">
+              {/* Only routes a signed-out visitor can actually open. /verify
+                  and /vote are protected and redirected them to /login. */}
               <li><Link className="footer-link" href="/register">Register</Link></li>
-              <li><Link className="footer-link" href="/verify">Verify your ID</Link></li>
-              <li><Link className="footer-link" href="/vote">Cast a vote</Link></li>
+              <li><Link className="footer-link" href="/login">Sign in</Link></li>
+              <li><Link className="footer-link" href="#how-it-works">How it works</Link></li>
               <li><Link className="footer-link" href="/results">Results</Link></li>
             </ul>
           </div>
