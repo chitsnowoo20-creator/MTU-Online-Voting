@@ -1,6 +1,6 @@
 # Campus Elections
 
-Online voting for student elections at Myanmar Technological University.
+Online voting for student elections at Mandalay Technological University.
 
 Students and staff register with any email address, prove who they are once by
 uploading their ID card, and then vote from their phone. An election officer
