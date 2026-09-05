@@ -35,7 +35,7 @@ export default async function EditElectionPage({
       title="Edit election"
       subtitle={election.name}
       back={{ href: `/elections/${id}`, label: election.name }}
-      width="640px"
+      contentWidth="640px"
     >
       <ElectionForm
         election={{

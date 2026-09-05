@@ -40,7 +40,6 @@ export default async function CategoriesPage({
       title="Categories and awards"
       subtitle={election.name}
       back={{ href: `/elections/${id}`, label: election.name }}
-      width="720px"
     >
       <CategoryEditor electionId={id} categories={categories ?? []} />
 

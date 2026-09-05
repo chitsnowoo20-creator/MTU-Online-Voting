@@ -16,6 +16,19 @@ import { FormError } from "@/components/ui/tile";
 
 export type Department = { code: string; name: string; active: boolean };
 
+/**
+ * Row actions.
+ *
+ * These were bare text with no padding, no hover and a hit target the size of
+ * the word itself. Same colours and sizes as before — what is added is a real
+ * target, a rounded hover fill, and a grouped cluster so the pair reads as this
+ * row's controls rather than as two stray links.
+ */
+const ROW_ACTION =
+  "inline-flex cursor-pointer items-center rounded-lg px-2.5 text-caption " +
+  // 44px tall for touch; the tighter box is fine once there is a pointer.
+  "min-h-11 transition-colors lg:min-h-8";
+
 function Pending({ label }: { label: string }) {
   const { pending } = useFormStatus();
   return (
@@ -56,7 +69,9 @@ function Row({ department }: { department: Department }) {
           <span className="min-w-16 pb-3 text-body-sm text-ink-muted">
             {department.code}
           </span>
-          <div className="min-w-[200px] flex-1">
+          {/* Capped: the card is full width now, and a department name
+              does not need a 900px input. */}
+          <div className="min-w-[200px] max-w-[420px] flex-1">
             <TextInput
               name="name"
               defaultValue={department.name}
@@ -81,27 +96,31 @@ function Row({ department }: { department: Department }) {
             {department.name}
           </span>
           {department.active ? null : <Tag tone="locked">Inactive</Tag>}
-          <button
-            type="button"
-            onClick={() => setEditing(true)}
-            className="cursor-pointer text-caption text-brand-ink"
-          >
-            Edit
-          </button>
-          <form action={activeAction}>
-            <input type="hidden" name="code" value={department.code} />
-            <input
-              type="hidden"
-              name="active"
-              value={String(!department.active)}
-            />
+          {/* `-mr-1.5` pulls the cluster's padding back so the last action's
+              text still lines up with the row's own right edge. */}
+          <div className="-mr-1.5 flex items-center gap-1">
             <button
-              type="submit"
-              className="cursor-pointer text-caption text-ink-muted"
+              type="button"
+              onClick={() => setEditing(true)}
+              className={`${ROW_ACTION} text-brand-ink hover:bg-primary/8`}
             >
-              {department.active ? "Deactivate" : "Reactivate"}
+              Edit
             </button>
-          </form>
+            <form action={activeAction}>
+              <input type="hidden" name="code" value={department.code} />
+              <input
+                type="hidden"
+                name="active"
+                value={String(!department.active)}
+              />
+              <button
+                type="submit"
+                className={`${ROW_ACTION} text-ink-muted hover:bg-surface-2 hover:text-ink`}
+              >
+                {department.active ? "Deactivate" : "Reactivate"}
+              </button>
+            </form>
+          </div>
         </div>
       )}
     </li>
@@ -146,7 +165,7 @@ export function DepartmentEditor({
             </label>
             <TextInput id="code" name="code" placeholder="CEIT" autoComplete="off" />
           </div>
-          <div className="min-w-[220px] flex-1">
+          <div className="min-w-[220px] max-w-[480px] flex-1">
             <label
               htmlFor="name"
               className="mb-1.5 block text-caption text-ink-muted"

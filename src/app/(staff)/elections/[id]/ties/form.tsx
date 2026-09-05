@@ -48,7 +48,7 @@ export function TieForm({
   }
 
   return (
-    <form action={formAction} className="surface-card">
+    <form action={formAction} className="surface-card overflow-hidden">
       <input type="hidden" name="electionId" value={electionId} />
       <input type="hidden" name="categoryId" value={group.categoryId} />
 

@@ -13,8 +13,7 @@ export default async function NewElectionPage() {
     <StaffPage
       title="New election"
       subtitle="Election officer"
-      back={{ href: "/elections", label: "Elections" }}
-      width="640px"
+      contentWidth="640px"
     >
       <ElectionForm />
     </StaffPage>

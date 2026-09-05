@@ -111,7 +111,10 @@
   .surface-page { background: radial-gradient(circle at 85% 0%, rgb(87 173 222 / 0.12), transparent 28rem), var(--color-surface-1); }
   .surface-panel { border: 1px solid var(--color-hairline); border-radius: var(--radius-xl); background: var(--color-canvas); box-shadow: var(--shadow-card); }
   .surface-section { background: linear-gradient(135deg, #fff 10%, #f8fbfc 100%); }
-  .surface-card { background: var(--color-canvas); }
+  /* Secondary card: same shape as .surface-panel, lighter shadow. It used to
+     be background alone, so every block using it rendered square-cornered
+     and borderless against the grey page. */
+  .surface-card { border: 1px solid var(--color-hairline); border-radius: var(--radius-lg); background: var(--color-canvas); box-shadow: var(--shadow-soft); }
   .eyebrow-label { color: var(--color-brand-ink); font-size: var(--text-caption); font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; }
   .link-action { display: inline-flex; align-items: center; gap: 0.35rem; font-weight: 600; }
   .link-action::after { content: "→"; transition: transform 0.15s ease; }

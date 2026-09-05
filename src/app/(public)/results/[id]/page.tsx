@@ -32,8 +32,8 @@ export default async function ArchivedResultsPage({
   if (!election) notFound();
 
   return (
-    <main className="flex-1 bg-surface-1 px-4 py-16">
-      <div className="mx-auto w-full max-w-[960px]">
+    <main className="surface-page flex-1 px-4 py-10 sm:py-16">
+      <div className="mx-auto w-full max-w-[1120px]">
         <p className="mb-4 text-body-sm">
           <Link href="/results">← Latest results</Link>
         </p>

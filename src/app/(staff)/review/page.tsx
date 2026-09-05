@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { DashboardPage, RailCard } from "@/components/ui/dashboard-page";
 import { DataTable } from "@/components/ui/data-table";
 import { Tag } from "@/components/ui/tag";
 import { requireRole } from "@/lib/auth/guards";
@@ -34,55 +35,70 @@ export default async function ReviewQueuePage() {
   const rows = queue ?? [];
 
   return (
-    <main className="flex-1 bg-surface-1 px-4 py-16">
-      <div className="mx-auto w-full max-w-[880px]">
-        <div className="surface-panel">
-          <div className="flex items-center justify-between gap-4 border-b border-hairline px-6 py-4">
-            <div>
-              <h1 className="text-card-title">Verification queue</h1>
-              <p className="text-body-sm text-ink-muted">Reviewer</p>
+    <DashboardPage
+      eyebrow="Reviewer"
+      title="Verification queue"
+      subtitle="Oldest submissions first."
+      status={
+        <Tag tone={rows.length > 0 ? "pending" : "locked"}>
+          {rows.length} pending
+        </Tag>
+      }
+      rail={
+        <RailCard title="Handling ID cards">
+          <p className="text-caption text-ink-muted">
+            Card images are visible only while a submission is pending, and are
+            deleted the moment you decide.
+          </p>
+        </RailCard>
+      }
+    >
+      <section className="surface-panel overflow-hidden">
+        {error ? (
+          <p className="px-6 py-8 text-body-sm text-error-ink">
+            {error.message}
+          </p>
+        ) : rows.length === 0 ? (
+          <div className="relative overflow-hidden px-6 py-14 text-center">
+            <div className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
+            <div className="relative mx-auto max-w-sm">
+              <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-success-bg text-2xl text-success-ink shadow-soft">
+                ✓
+              </span>
+              <p className="mt-5 text-card-title text-ink">Queue is clear</p>
+              <p className="mt-2 text-body text-ink-muted">
+                Nothing is waiting for review. New submissions appear here as
+                they arrive.
+              </p>
             </div>
-            <Tag tone={rows.length > 0 ? "pending" : "locked"}>
-              {rows.length} pending
-            </Tag>
           </div>
-
-          {error ? (
-            <p className="px-6 py-8 text-body-sm text-error-ink">
-              {error.message}
-            </p>
-          ) : rows.length === 0 ? (
-            <div className="relative overflow-hidden px-6 py-14 text-center">
-              <div className="pointer-events-none absolute left-1/2 top-1/2 h-44 w-44 -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/10 blur-3xl" />
-              <div className="relative mx-auto max-w-sm">
-                <span className="mx-auto flex h-14 w-14 items-center justify-center rounded-2xl bg-success-bg text-2xl text-success-ink shadow-soft">✓</span>
-                <p className="mt-5 text-card-title text-ink">Queue is clear</p>
-                <p className="mt-2 text-body text-ink-muted">
-                  Nothing is waiting for review. New submissions appear here as they arrive.
-                </p>
-              </div>
-            </div>
-          ) : (
-            <>
-              <ul className="flex flex-col divide-y divide-hairline md:hidden">
-                {rows.map((row) => (
-                  <li key={row.submission_id} className="px-6 py-4">
-                    <p className="text-ink">{row.full_name}</p>
-                    <p className="text-caption text-ink-muted">{row.email}</p>
-                    <p className="mt-2 text-body-sm text-ink-muted">
+        ) : (
+          <>
+            <ul className="flex flex-col divide-y divide-hairline md:hidden">
+              {rows.map((row) => (
+                // Whole row taps through to the submission; the standalone
+                // "Review" link was a 17px target.
+                <li key={row.submission_id}>
+                  <Link
+                    href={`/review/${row.submission_id}`}
+                    className="block px-6 py-4 no-underline hover:bg-primary/5 hover:no-underline"
+                  >
+                    <span className="block text-ink">{row.full_name}</span>
+                    <span className="block text-caption text-ink-muted">
+                      {row.email}
+                    </span>
+                    <span className="mt-2 block text-body-sm text-ink-muted">
                       Submitted{" "}
                       {row.submitted_at ? relative(row.submitted_at) : "—"}
-                    </p>
-                    <p className="mt-3 text-body-sm">
-                      <Link href={`/review/${row.submission_id}`}>Review</Link>
-                    </p>
-                  </li>
-                ))}
-              </ul>
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
 
-              <div className="hidden md:block">
-                <DataTable>
-                  <table className="w-full border-collapse text-body-sm">
+            <div className="hidden md:block">
+              <DataTable>
+                <table className="w-full border-collapse text-body-sm">
                   <thead>
                     <tr className="border-b border-hairline text-left text-caption text-ink-muted">
                       <th className="px-6 py-3 font-normal">Submitter</th>
@@ -113,18 +129,12 @@ export default async function ReviewQueuePage() {
                       </tr>
                     ))}
                   </tbody>
-                  </table>
-                </DataTable>
-              </div>
-            </>
-          )}
-        </div>
-
-        <p className="mt-4 text-caption text-ink-muted">
-          Card images are visible only while a submission is pending, and are
-          deleted the moment you decide.
-        </p>
-      </div>
-    </main>
+                </table>
+              </DataTable>
+            </div>
+          </>
+        )}
+      </section>
+    </DashboardPage>
   );
 }

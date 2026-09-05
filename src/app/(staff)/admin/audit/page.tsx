@@ -4,7 +4,6 @@ import Link from "next/link";
 import { StaffPage } from "@/components/staff/shell";
 import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
-import { TextInput } from "@/components/ui/field";
 import { Tag } from "@/components/ui/tag";
 import { requireRole } from "@/lib/auth/guards";
 import {
@@ -100,24 +99,28 @@ export default async function AuditPage({
   return (
     <StaffPage
       title="Audit log"
-      subtitle="Admin"
-      back={{ href: "/admin", label: "Admin" }}
+      subtitle="Every privileged action, append-only. Nothing can edit it."
       actions={<Tag tone="locked">Read-only</Tag>}
-      width="1000px"
     >
-      <form className="mb-6 flex flex-wrap items-end gap-3">
-        <div className="min-w-[200px]">
-          <label
-            htmlFor="group"
-            className="mb-1.5 block text-caption text-ink-muted"
-          >
-            Action type
-          </label>
+      {/*
+        * Three separate controls, each its own framed cell.
+        *
+        * The premium part is not the frame but what sits inside it: the label
+        * lives in the cell above a borderless control, so a field reads as one
+        * object instead of a caption stranded above a box. The select drops its
+        * OS chrome (`appearance-none`) for a chevron in `currentColor`, so it
+        * matches the date fields rather than rendering a system dropdown beside
+        * them. `items-stretch` lets the button match the fields' height without
+        * hard-coding one. Focus is left to the global `:focus-visible` outline.
+        */}
+      <form className="mb-6 flex flex-wrap items-stretch gap-3">
+        <label htmlFor="group" className="relative flex w-full cursor-pointer flex-col justify-center rounded-2xl border border-hairline bg-canvas px-5 py-2.5 shadow-soft transition-colors focus-within:border-primary sm:w-64">
+          <span className="text-caption text-ink-muted">Action type</span>
           <select
             id="group"
             name="group"
             defaultValue={group ?? ""}
-            className="w-full rounded-xl border border-hairline bg-canvas px-4 py-3 text-body text-ink shadow-[inset_0_1px_2px_rgb(20_32_51/0.03)] outline-none transition-all focus:border-primary focus:ring-4 focus:ring-primary/10"
+            className="w-full cursor-pointer appearance-none truncate bg-transparent pr-6 text-body text-ink outline-none"
           >
             <option value="">Everything</option>
             {Object.entries(AUDIT_GROUPS).map(([key, value]) => (
@@ -126,23 +129,43 @@ export default async function AuditPage({
               </option>
             ))}
           </select>
-        </div>
-        <div className="w-44">
-          <label
-            htmlFor="from"
-            className="mb-1.5 block text-caption text-ink-muted"
+          <svg
+            aria-hidden="true"
+            viewBox="0 0 20 20"
+            className="pointer-events-none absolute bottom-4 right-4 h-3 w-3 text-ink-muted"
+            fill="currentColor"
           >
-            From
-          </label>
-          <TextInput id="from" name="from" type="date" defaultValue={from} />
-        </div>
-        <div className="w-44">
-          <label htmlFor="to" className="mb-1.5 block text-caption text-ink-muted">
-            To
-          </label>
-          <TextInput id="to" name="to" type="date" defaultValue={to} />
-        </div>
-        <Button type="submit" variant="tertiary">
+            <path d="M10 13 4 7h12Z" />
+          </svg>
+        </label>
+
+        <label htmlFor="from" className="flex min-w-[140px] flex-1 cursor-pointer flex-col justify-center rounded-2xl border border-hairline bg-canvas px-5 py-2.5 shadow-soft transition-colors focus-within:border-primary sm:w-44 sm:flex-none">
+          <span className="text-caption text-ink-muted">From</span>
+          <input
+            id="from"
+            name="from"
+            type="date"
+            defaultValue={from}
+            className="w-full bg-transparent text-body text-ink outline-none"
+          />
+        </label>
+
+        <label htmlFor="to" className="flex min-w-[140px] flex-1 cursor-pointer flex-col justify-center rounded-2xl border border-hairline bg-canvas px-5 py-2.5 shadow-soft transition-colors focus-within:border-primary sm:w-44 sm:flex-none">
+          <span className="text-caption text-ink-muted">To</span>
+          <input
+            id="to"
+            name="to"
+            type="date"
+            defaultValue={to}
+            className="w-full bg-transparent text-body text-ink outline-none"
+          />
+        </label>
+
+        <Button
+          type="submit"
+          variant="tertiary"
+          className="!w-full !rounded-2xl !px-6 sm:!w-auto"
+        >
           Filter
         </Button>
       </form>
@@ -228,9 +251,9 @@ export default async function AuditPage({
         </span>
         <span className="flex gap-4">
           {pageIndex > 0 ? (
-            <Link href={pageHref(pageIndex - 1)}>← Newer</Link>
+            <Link href={pageHref(pageIndex - 1)} className="inline-flex min-h-11 items-center">← Newer</Link>
           ) : null}
-          {hasNext ? <Link href={pageHref(pageIndex + 1)}>Older →</Link> : null}
+          {hasNext ? <Link href={pageHref(pageIndex + 1)} className="inline-flex min-h-11 items-center">Older →</Link> : null}
         </span>
       </div>
 

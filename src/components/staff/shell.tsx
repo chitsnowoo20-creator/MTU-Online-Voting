@@ -46,18 +46,36 @@ export function StaffPage({
   back,
   actions,
   children,
-  width = "960px",
+  contentWidth,
 }: {
   title: string;
   subtitle?: ReactNode;
+  /**
+   * A breadcrumb, not a general back button.
+   *
+   * Only for a destination the nav cannot name — the election you are inside.
+   * Pages that merely sat one level under a nav row ("← Admin", "← Elections")
+   * had this removed: repeating a row that is already on screen, under the same
+   * label, is chrome.
+   */
   back?: { href: string; label: string };
   actions?: ReactNode;
   children: ReactNode;
-  width?: string;
+  /**
+   * Caps the *content*, never the page container.
+   *
+   * This used to be a `width` prop on the container itself, which is why a
+   * narrow screen drifted on both edges while a wide one only moved on the
+   * left: `mx-auto` recentres a capped box when the nav rail collapses, and
+   * leaves a full-width one alone. Every page now shares one 1120px container
+   * and slides the same way; a form that wants to stay narrow constrains its
+   * own column, left-aligned under a full-width header.
+   */
+  contentWidth?: string;
 }) {
   return (
     <main className="surface-page flex-1 px-4 py-10 sm:py-14">
-      <div className="mx-auto w-full" style={{ maxWidth: width }}>
+      <div className="mx-auto w-full max-w-[1120px]">
         {back ? (
           <p className="mb-4 text-body-sm font-medium">
             <Link href={back.href} className="inline-flex items-center gap-1 text-ink-muted hover:text-brand-ink">
@@ -76,7 +94,9 @@ export function StaffPage({
           {actions ? <div className="flex gap-3">{actions}</div> : null}
         </div>
 
-        {children}
+        <div style={contentWidth ? { maxWidth: contentWidth } : undefined}>
+          {children}
+        </div>
       </div>
     </main>
   );
