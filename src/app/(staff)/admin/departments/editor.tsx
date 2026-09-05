@@ -88,17 +88,32 @@ function Row({ department }: { department: Department }) {
           </Button>
         </form>
       ) : (
-        <div className="flex flex-wrap items-center gap-3">
-          <span className="min-w-16 text-body-sm text-ink">
-            {department.code}
-          </span>
-          <span className="flex-1 text-body-sm text-ink-muted">
-            {department.name}
-          </span>
-          {department.active ? null : <Tag tone="locked">Inactive</Tag>}
-          {/* `-mr-1.5` pulls the cluster's padding back so the last action's
-              text still lines up with the row's own right edge. */}
-          <div className="-mr-1.5 flex items-center gap-1">
+        /*
+         * Stacked on mobile, inline from `sm` up.
+         *
+         * This was one `flex-wrap` row. A name that is a single unbreakable
+         * word ("Biotechnology") sets its own min-content width, which pushed
+         * the actions onto a second line for that row alone while names with
+         * spaces wrapped internally and stayed put — so rows disagreed with
+         * each other. It also squeezed the long names into five-line columns.
+         */
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
+          <div className="flex min-w-0 flex-1 items-baseline gap-3">
+            <span className="min-w-16 shrink-0 text-body-sm text-ink">
+              {department.code}
+            </span>
+            <span className="min-w-0 break-words text-body-sm text-ink-muted">
+              {department.name}
+            </span>
+          </div>
+          {department.active ? null : (
+            <span className="sm:shrink-0">
+              <Tag tone="locked">Inactive</Tag>
+            </span>
+          )}
+          {/* Negative margins pull the cluster's own padding back so its text
+              lines up with the row edge — left when stacked, right when inline. */}
+          <div className="-ml-2.5 flex shrink-0 items-center gap-1 sm:ml-0 sm:-mr-1.5">
             <button
               type="button"
               onClick={() => setEditing(true)}

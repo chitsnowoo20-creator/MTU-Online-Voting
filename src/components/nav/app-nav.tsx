@@ -445,9 +445,24 @@ export function AppNav({
         </div>
       </div>
 
+      {/*
+        * Floating pill, sized to its contents rather than the viewport.
+        *
+        * It used to be `inset-x-4` with `flex-1` items, so a two-item section
+        * (Reviewer) got two half-screen targets. Now the bar is centred and
+        * only as wide as the items it holds, and the active item is a rounded
+        * pill inset from the bar's edge instead of a full-height block with a
+        * top stripe. `max-w` keeps four items inside a 320px screen.
+        *
+        * Translucent with a blur behind it, so content shows through as it
+        * scrolls under. Written as Tailwind utilities rather than the
+        * `.glass-panel-dark` class in globals.css — that class's declarations
+        * were not reaching the element (no matching rule at runtime), so its
+        * backdrop-filter silently did nothing.
+        */}
       <nav
         aria-label={`${section.name} navigation`}
-        className="fixed inset-x-4 bottom-4 z-30 flex overflow-hidden rounded-2xl border border-white/10 bg-inverse-canvas shadow-[0_14px_35px_rgb(17_32_51/0.32)] lg:hidden"
+        className="fixed bottom-4 left-1/2 z-30 flex max-w-[calc(100vw-2rem)] -translate-x-1/2 items-center gap-1 rounded-[22px] border border-white/10 bg-inverse-canvas/85 p-1.5 shadow-[0_14px_35px_rgb(17_32_51/0.32)] backdrop-blur-xl backdrop-saturate-150 lg:hidden"
       >
         {barItems.map((item) => {
           const active = item.href === current;
@@ -456,14 +471,14 @@ export function AppNav({
               key={item.href}
               href={item.href}
               aria-current={active ? "page" : undefined}
-              className={`flex h-16 flex-1 flex-col items-center justify-center gap-1 border-t-2 no-underline transition-colors hover:no-underline ${
+              className={`flex h-[52px] min-w-16 flex-col items-center justify-center gap-1 rounded-2xl px-2 no-underline transition-colors hover:no-underline ${
                 active
-                  ? "border-primary bg-inverse-surface-1 text-inverse-ink"
-                  : "border-transparent text-inverse-ink-muted"
+                  ? "bg-inverse-surface-1 text-inverse-ink"
+                  : "text-inverse-ink-muted"
               }`}
             >
               <NavIcon name={item.icon} />
-              <span className="text-caption">{item.short}</span>
+              <span className="truncate text-caption">{item.short}</span>
             </Link>
           );
         })}
