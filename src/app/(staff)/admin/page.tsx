@@ -4,6 +4,7 @@ import Link from "next/link";
 import { StaffPage } from "@/components/staff/shell";
 import { Tag } from "@/components/ui/tag";
 import { requireRole } from "@/lib/auth/guards";
+import { formatMoment } from "@/lib/election/schedule";
 import { describeEntry, type AuditRow } from "@/lib/db/audit";
 import type { Database } from "@/lib/db/database.types";
 import { createClient } from "@/lib/supabase/server";
@@ -118,10 +119,7 @@ export default async function AdminPage() {
                     {describeEntry(entry, emailFor)}
                   </p>
                   <p className="mt-0.5 text-caption text-ink-muted">
-                    {new Date(entry.created_at).toLocaleString("en-GB", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
+                    {formatMoment(entry.created_at)}
                     {" · "}
                     {emailFor(entry.actor_id) ?? "System"}
                   </p>

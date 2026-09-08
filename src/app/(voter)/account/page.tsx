@@ -5,6 +5,7 @@ import { ButtonLink } from "@/components/ui/button";
 import { DashboardPage, RailCard } from "@/components/ui/dashboard-page";
 import { Tag } from "@/components/ui/tag";
 import { requireUser } from "@/lib/auth/guards";
+import { formatMoment } from "@/lib/election/schedule";
 
 export const metadata: Metadata = { title: "Your status · Campus Elections" };
 
@@ -25,10 +26,7 @@ function steps(user: Awaited<ReturnType<typeof requireUser>>): Step[] {
   const emailStep: Step = confirmed
     ? {
         title: "Email confirmed",
-        detail: new Date(user.emailConfirmedAt!).toLocaleString("en-GB", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        }),
+        detail: formatMoment(user.emailConfirmedAt),
         tag: { tone: "done", label: "Done" },
       }
     : {

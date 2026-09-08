@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { DataTable } from "@/components/ui/data-table";
 import { Tag } from "@/components/ui/tag";
 import { requireRole } from "@/lib/auth/guards";
+import { formatMoment } from "@/lib/election/schedule";
 import {
   AUDIT_GROUPS,
   describeEntry,
@@ -185,10 +186,7 @@ export default async function AuditPage({
               {entries.map((entry) => (
                 <li key={entry.id} className="px-6 py-4">
                   <p className="text-body-sm text-ink-muted">
-                    {new Date(entry.created_at).toLocaleString("en-GB", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    })}
+                    {formatMoment(entry.created_at)}
                   </p>
                   <p className="mt-1 text-body-sm text-ink-muted">
                     {emailFor(entry.actor_id) ?? (
@@ -219,10 +217,7 @@ export default async function AuditPage({
                         className="border-b border-hairline last:border-b-0 align-top"
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-ink-muted">
-                          {new Date(entry.created_at).toLocaleString("en-GB", {
-                            dateStyle: "medium",
-                            timeStyle: "short",
-                          })}
+                          {formatMoment(entry.created_at)}
                         </td>
                         <td className="px-6 py-4 text-ink-muted">
                           {emailFor(entry.actor_id) ?? (

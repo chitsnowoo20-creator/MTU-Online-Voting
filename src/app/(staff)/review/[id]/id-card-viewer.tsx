@@ -17,25 +17,34 @@ export function IdCardViewer({
   fullName: string;
   initialUrl: string | null;
 }) {
-  const [url, setUrl] = useState(initialUrl);
-  const [secondsLeft, setSecondsLeft] = useState(TTL_SECONDS);
   const [state, refreshAction] = useActionState<IdCardUrlState, FormData>(
     refreshIdCardUrl,
     {},
   );
 
+  /*
+   * Everything here is derived. Two effects used to keep state in sync — one
+   * copying the action's URL into `url`, another resetting a counter whenever
+   * that URL changed — which is a render, an effect, then a second render, and
+   * tripped `react-hooks/set-state-in-effect` twice.
+   *
+   * A signed URL's expiry is a fact about the URL, not UI state: the action
+   * reports it, and the countdown is simply the difference between that instant
+   * and now. Nothing has to be reset when a fresh URL arrives.
+   */
+  const url = state.signedUrl ?? initialUrl;
+
+  const [mountedAt] = useState(() => Date.now());
+  const [now, setNow] = useState(mountedAt);
+  const expiresAt = state.expiresAt ?? mountedAt + TTL_SECONDS * 1000;
+
+  // The interval only advances the clock; the number is computed from it, so a
+  // backgrounded tab resumes with the right value instead of a stale count.
   useEffect(() => {
     if (!url) return;
-    setSecondsLeft(TTL_SECONDS);
-    const timer = window.setInterval(() => {
-      setSecondsLeft((value) => (value > 0 ? value - 1 : 0));
-    }, 1000);
+    const timer = window.setInterval(() => setNow(Date.now()), 1000);
     return () => window.clearInterval(timer);
   }, [url]);
-
-  useEffect(() => {
-    if (state.signedUrl) setUrl(state.signedUrl);
-  }, [state.signedUrl]);
 
   function refresh() {
     const formData = new FormData();
@@ -43,6 +52,7 @@ export function IdCardViewer({
     refreshAction(formData);
   }
 
+  const secondsLeft = Math.max(0, Math.ceil((expiresAt - now) / 1000));
   const expired = secondsLeft === 0;
 
   return (

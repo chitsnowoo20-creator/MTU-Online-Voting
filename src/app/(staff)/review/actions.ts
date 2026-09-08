@@ -14,6 +14,8 @@ export type DecisionState = {
 export type IdCardUrlState = {
   error?: string;
   signedUrl?: string;
+  /** When that URL stops working, so the viewer can count down to it. */
+  expiresAt?: number;
 };
 
 /** Mint a fresh signed URL for the pending submission's ID card image. */
@@ -43,7 +45,7 @@ export async function refreshIdCardUrl(
     return { error: error?.message ?? "Could not load the image." };
   }
 
-  return { signedUrl: signed.signedUrl };
+  return { signedUrl: signed.signedUrl, expiresAt: Date.now() + 300_000 };
 }
 
 export async function decideReview(

@@ -68,3 +68,31 @@ The lifecycle only moves forwards. There is no way back to an earlier stage.
 Next.js (App Router, TypeScript) and Supabase — Postgres, authentication, and
 file storage. The rules above are enforced by the database itself rather than by
 the screens in front of it, so they hold however the data is reached.
+
+## Documentation
+
+**The system**
+
+- [PRD](docs/PRD.md) — what it has to do, and the requirements the code cites by number
+- [Architecture](docs/ARCHITECTURE.md) — how it is put together
+- [Schema](docs/SCHEMA.md) — tables, policies and functions
+- [AGENTS](docs/AGENTS.md) — the invariants the code refers to throughout
+
+**Working on it**
+
+- [Setting up](docs/setup.md) — running it locally, and against your own Supabase project
+- [Roadmap](docs/roadmap.md) — what we would build next, and the limitations we know about
+- [Q&A preparation](docs/qa-prep.md) — likely questions about the design, with answers
+- [UI shell rework](docs/ui-shell-rework.md) — a record of the interface restructure
+
+## Layout
+
+```
+src/app/(public|voter|staff)/   routes, grouped by audience
+src/components/                 UI, nav chrome
+src/lib/supabase/               server + browser client factories
+src/lib/auth/                   role guards
+src/lib/validation/             zod schemas, shared by form and server
+supabase/migrations/            all SQL — the schema is never edited by hand
+supabase/tests/                 security invariant suite
+```

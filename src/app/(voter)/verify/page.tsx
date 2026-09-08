@@ -5,6 +5,7 @@ import { UploadForm } from "./upload-form";
 import { DashboardPage, RailCard } from "@/components/ui/dashboard-page";
 import { Tag } from "@/components/ui/tag";
 import { requireUser } from "@/lib/auth/guards";
+import { formatMoment } from "@/lib/election/schedule";
 import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = {
@@ -46,10 +47,7 @@ export default async function VerifyPage() {
                 <dt className="text-ink-muted">Submitted</dt>
                 <dd>
                   {submission?.submitted_at
-                    ? new Date(submission.submitted_at).toLocaleString("en-GB", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      })
+                    ? formatMoment(submission.submitted_at)
                     : "—"}
                 </dd>
               </div>

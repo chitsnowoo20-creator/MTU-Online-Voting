@@ -3,6 +3,23 @@ import type { Database } from "@/lib/db/database.types";
 type ElectionState = Database["public"]["Enums"]["election_state"];
 
 /**
+ * The timezone every displayed time is rendered in.
+ *
+ * Absolute times are formatted on the server, and `toLocaleString` without this
+ * option uses whatever timezone the *process* runs in — a developer's laptop
+ * locally, UTC in a deployment container. The same instant then reads six and a
+ * half hours apart depending on where it was rendered.
+ *
+ * Stated here rather than left to a `TZ` environment variable so it survives
+ * someone forgetting to set one, and so the answer to "which timezone is this?"
+ * is in the repository. This is a single-campus election; if it ever needs to
+ * follow the viewer instead, that zone has to reach the server (a cookie set on
+ * first visit) rather than being read in the browser, or server and client will
+ * render different text for the same node.
+ */
+const ELECTION_TIME_ZONE = "Asia/Yangon";
+
+/**
  * Where an election sits relative to its own window.
  *
  * `state = OPEN` only *arms* an election — cast_vote() also requires `now()` to
@@ -35,7 +52,14 @@ export function isUpcoming(iso: string | null | undefined): boolean {
   return Boolean(iso) && Date.parse(iso!) > Date.now();
 }
 
-/** "tomorrow", "in 14 hours", "3 days ago". */
+/**
+ * "tomorrow", "in 14 hours", "3 days ago".
+ *
+ * No timezone needed here or in `countdownParts`: both measure the distance
+ * between two absolute instants, and a zone shifts both ends equally. That is
+ * why relative times were right in every environment while absolute ones were
+ * not.
+ */
 export function formatCountdown(iso: string | null): string {
   if (!iso) return "";
   const diff = Date.parse(iso) - Date.now();
@@ -88,6 +112,7 @@ export function formatMoment(iso: string | null): string {
   return new Date(iso).toLocaleString("en-GB", {
     dateStyle: "medium",
     timeStyle: "short",
+    timeZone: ELECTION_TIME_ZONE,
   });
 }
 
@@ -96,7 +121,11 @@ export function formatRange(
   closesAt: string | null,
 ): string {
   if (!opensAt && !closesAt) return "Not scheduled";
-  const options: Intl.DateTimeFormatOptions = { day: "numeric", month: "short" };
+  const options: Intl.DateTimeFormatOptions = {
+    day: "numeric",
+    month: "short",
+    timeZone: ELECTION_TIME_ZONE,
+  };
   const from = opensAt
     ? new Date(opensAt).toLocaleDateString("en-GB", options)
     : "—";
